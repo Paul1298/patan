@@ -37,21 +37,7 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-extra-deps:
-# - base-4.11.1.0@sha256:93f63d67b980571a1849649a604d38fd68e8d1a9687e954d36e4f0ad99080aed,9927
-- HPDF-1.4.10
-# - Win32-2.8.3.0@sha256:58fa6f52e8a0d455a74bb19445c177f2cc79a0975cae5fd96e2334bd38a516d4,4153
-# - array-0.5.3.0@sha256:23842bd341f0bbea9960c09a470cfb129c6d8a6cf617c879f05ba63e7f9a9341,1667
-# - binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
-# - bytestring-0.10.8.2@sha256:0a58355cb91bc9930f951a6d14f5fb4a6022647c3aab2b7223e888843bb6a832,8921
-# - containers-0.6.2.1@sha256:bbc3d2d5eef59a5d26383fb4b727c968390f2b6e9bd413d29aa875175bb16f8b,2460
-# - deepseq-1.4.4.0@sha256:a05b9b84271a9826258a2d3d2948f010cd1d920aa5b5168278d1064a5932524e,2904
-# - directory-1.3.3.2@sha256:79e15a62f90cb9f20f46b2b56fe67d00d71ed54cfad07ea337695f9ebb74baa4,2829
-# - filepath-1.4.2.1@sha256:2dbe4b5aefb13242e413dd90faa15dc19faf7b451a8d668f73712b2ea52cdb12,2219
-# - pretty-1.1.3.6@sha256:e16ffc733e816cfc09e99cc7f2398805f1f4c872d238a6b81668b5527284b382,2482
-# - process-1.6.5.1@sha256:77a9afeb676357f67fe5cf1ad79aca0745fb6f7fb96b786d510af08f622643f6,2468
-# - time-1.9.3@sha256:8f1b5448722a12a952248b356c9eb366e351226543d9086a2da71270522d5f45,5679
-# - transformers-0.5.6.2@sha256:6c959d14430f4deffb99579ba019de07c3d852a2122b6f449344386c7d75ff1d,3172
+# extra-deps: []
 # Override default flag values for local packages and extra-deps
 # flags: {}
 
