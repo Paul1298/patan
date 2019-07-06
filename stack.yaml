@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-12.26
+resolver: lts-13.27
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -37,7 +37,14 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-# extra-deps: []
+extra-deps:
+  - gtk2hs-buildtools-0.13.5.0@sha256:a765766c4208a3e4def319ebf280fbb9e7d0a3f28d15922db36970404fb1daee,5238
+  - cairo-0.13.6.0@sha256:a9122d48957a2dbb5a177e5068b850efa1e99bb22c68eb2571165c3c945a8dd6,4187
+  - gio-0.13.6.0@sha256:00fce1b49c902ba82433cc018fb5d4651797464342a9cbc66df2c62bb8884650,3102
+  - glib-0.13.7.0@sha256:25f62eb48d104342537dd1c724f07355d56226ca595ce6f1848415fbb7f59fa7,3120
+  - pango-0.13.6.0@sha256:ed8d300945bea97ccb652efc73d159634aefebff8c64f60eef6b6ac5ecebc4ae,3881
+  #
+  - gtk-0.15.2@sha256:1d968e6231bfc34c7b454eec826626bcffc81f2d0116be507a44b40d6a441b73,16562
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

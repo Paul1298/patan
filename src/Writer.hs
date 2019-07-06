@@ -1,5 +1,6 @@
 module Writer where
 import Data.List(intercalate)
+-- import System.IO.UTF8
 
 pathFile = "test.rtf"
 
@@ -22,7 +23,7 @@ data RTFString = RTFString { format :: Format
                            }
 
 instance Show RTFString where
-  show (RTFString f c) = show f ++ show c
+  show (RTFString f c) = show f ++ c
   showList cs = (++) $ intercalate "\n" (map show cs)
 
 data Paragraph = Paragraph { alignment :: Quadding
@@ -31,19 +32,24 @@ data Paragraph = Paragraph { alignment :: Quadding
 
 instance Show Paragraph where
   show (Paragraph a cs) = "{\\pard" ++ show a ++ "\n" ++ showList cs "" ++ "\n\\par}\n"
+  showList ps = (++) $ intercalate "\n" (map show ps)
 
 appendRTFStringOrPara :: (Show a) => a -> IO ()
 appendRTFStringOrPara s = appendFile pathFile (show s)
 
-startRTF = "{\\rtf1\\ansi\\deff0\\fs22 {\\fonttbl {\\f0 Times New Roman;}}\n"
+defsize = 10
 
-test = Paragraph QJustify [RTFString Bold "qwdqwdqwd"]
+startRTF = "{\\rtf1\\ansi\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}\n"
 
 writeRTF :: IO ()
 writeRTF = do
-  file <- readFile "text.txt"
-  let templateFields = lines file
-  let f = [RTFString Bold x | x <- templateFields]
   writeFile pathFile startRTF
-  mapM appendRTFStringOrPara f
+  text <- readFile "text.txt"
+  headers <- readFile "headers.txt"
+  let templateFields = lines text
+  let f = [Paragraph QJustify [RTFString Bold x] | x <- lines text]
+  let h = [Paragraph QCenter [RTFString Bold h] | h <- lines headers]
+  appendRTFStringOrPara h
+  appendRTFStringOrPara f
+  -- mapM appendRTFStringOrPara f
   appendFile pathFile "}"
