@@ -1,6 +1,6 @@
 module Writer where
-import Data.List(intercalate)
--- import System.IO.UTF8
+import           Data.List (intercalate)
+import           System.IO
 
 pathFile = "test.rtf"
 
@@ -18,7 +18,7 @@ instance Show Quadding where
   show QRight   = "\\qr "
   show QJustify = "\\qj "
 
-data RTFString = RTFString { format :: Format
+data RTFString = RTFString { format  :: Format
                            , content :: String
                            }
 
@@ -27,7 +27,7 @@ instance Show RTFString where
   showList cs = (++) $ intercalate "\n" (map show cs)
 
 data Paragraph = Paragraph { alignment :: Quadding
-                           , contents :: [RTFString]
+                           , contents  :: [RTFString]
                            }
 
 instance Show Paragraph where
@@ -44,8 +44,13 @@ startRTF = "{\\rtf1\\ansi\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0
 writeRTF :: IO ()
 writeRTF = do
   writeFile pathFile startRTF
-  text <- readFile "text.txt"
-  headers <- readFile "headers.txt"
+  textFile <- openFile "text.txt" ReadMode
+  hSetEncoding textFile latin1
+  text <- hGetContents textFile
+  headersFile <- openFile "headers.txt" ReadMode
+  hSetEncoding textFile latin1
+  headers <- hGetContents headersFile
+  -- headers <- readFile "headers.txt"
   let templateFields = lines text
   let f = [Paragraph QJustify [RTFString Bold x] | x <- lines text]
   let h = [Paragraph QCenter [RTFString Bold h] | h <- lines headers]

@@ -44,7 +44,7 @@ extra-deps:
   - glib-0.13.7.0@sha256:25f62eb48d104342537dd1c724f07355d56226ca595ce6f1848415fbb7f59fa7,3120
   - pango-0.13.6.0@sha256:ed8d300945bea97ccb652efc73d159634aefebff8c64f60eef6b6ac5ecebc4ae,3881
   #
-  - gtk-0.15.2@sha256:1d968e6231bfc34c7b454eec826626bcffc81f2d0116be507a44b40d6a441b73,16562
+  - gtk3-0.15.1@sha256:86cdd17df569aa641835e5bcae304bc405aa397469888a0540860cfc050b788d,19475
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

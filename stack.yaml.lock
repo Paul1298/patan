@@ -40,12 +40,12 @@ packages:
   original:
     hackage: pango-0.13.6.0@sha256:ed8d300945bea97ccb652efc73d159634aefebff8c64f60eef6b6ac5ecebc4ae,3881
 - completed:
-    hackage: gtk-0.15.2@sha256:1d968e6231bfc34c7b454eec826626bcffc81f2d0116be507a44b40d6a441b73,16562
+    hackage: gtk3-0.15.1@sha256:86cdd17df569aa641835e5bcae304bc405aa397469888a0540860cfc050b788d,19475
     pantry-tree:
-      size: 21349
-      sha256: e681da485a64fb83cd43b574c541d27b953d52eabf1346704c030e0b5f9aed42
+      size: 21251
+      sha256: 40caeb8662385911c89bd5c512b4ee0557f9ca0c69ba8bef50c4ea7686cacdbe
   original:
-    hackage: gtk-0.15.2@sha256:1d968e6231bfc34c7b454eec826626bcffc81f2d0116be507a44b40d6a441b73,16562
+    hackage: gtk3-0.15.1@sha256:86cdd17df569aa641835e5bcae304bc405aa397469888a0540860cfc050b788d,19475
 snapshots:
 - completed:
     size: 500539

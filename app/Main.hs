@@ -1,11 +1,10 @@
--- {-# LANGUAGE OverloadedStrings #-}
 module Main where
-import Template
-import Writer
-import GUI
+import           GUI
+import           Template
+import           Writer
 
 
 main :: IO ()
 main = do
-  writeRTF
-  -- startGUI
+  -- writeRTF
+  startGUI
