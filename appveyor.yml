@@ -1,23 +1,38 @@
 build: off
 
-before_build:
-- curl -ostack.zip -L --insecure http://www.stackage.org/stack/windows-i386
+before_test:
+# http://help.appveyor.com/discussions/problems/6312-curl-command-not-found
+- set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
+
+- curl -sS -ostack.zip -L --insecure https://get.haskellstack.org/stable/windows-x86_64.zip
 - 7z x stack.zip stack.exe
 
-skip_tags: true
+clone_folder: "c:\\stack"
+environment:
+  global:
+    STACK_ROOT: "c:\\sr"
 
-build_script:
-# Suppress output from stack setup, as there is a lot and it's not necessary.
-- stack setup --no-terminal > nul
-- stack build --only-snapshot --no-terminal
-- stack --local-bin-path . install patan
+    # Override the temp directory to avoid sed escaping issues
+    # See https://github.com/haskell/cabal/issues/5386
+    TMP: "c:\\tmp"
 
-artifacts:
-- path: patan.exe
+  matrix:
+  - ARGS: ""
+  #- ARGS: "--resolver lts-2"
+  #- ARGS: "--resolver lts-3"
+  #- ARGS: "--resolver lts-6"
+  #- ARGS: "--resolver lts-7"
+  - ARGS: "--resolver lts-9"
+  - ARGS: "--resolver lts-11"
+  - ARGS: "--resolver lts-12"
+  - ARGS: "--resolver lts-13"
+  #- ARGS: "--resolver nightly"
 
-# Auto-deploy
-deploy:
-  - provider: GitHub
-    artifact: patan.exe
-    on:
-      branch: master
+test_script:
+
+# Install toolchain, but do it silently due to lots of output
+- stack %ARGS% setup > nul
+
+# The ugly echo "" hack is to avoid complaints about 0 being an invalid file
+# descriptor
+- echo "" | stack %ARGS% --no-terminal test
