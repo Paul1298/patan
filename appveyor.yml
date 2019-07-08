@@ -10,7 +10,7 @@ install:
 - stack --version
 
 # Update GIT submodule
-- git submodule update --init --recursive
+- git submodule init && git submodule update
 
 build_script:
 - stack setup > nul
