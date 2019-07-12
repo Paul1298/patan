@@ -1,3 +1,5 @@
+*~*
 .stack-work/
+stack.yaml.lock
 patan.cabal
-*~
+plan.txt
