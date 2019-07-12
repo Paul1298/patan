@@ -17,6 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
+# resolver: lts-12.14
 resolver: lts-13.27
 
 # User packages to be built.
@@ -43,8 +44,18 @@ extra-deps:
   - gio-0.13.6.0@sha256:00fce1b49c902ba82433cc018fb5d4651797464342a9cbc66df2c62bb8884650,3102
   - glib-0.13.7.0@sha256:25f62eb48d104342537dd1c724f07355d56226ca595ce6f1848415fbb7f59fa7,3120
   - pango-0.13.6.0@sha256:ed8d300945bea97ccb652efc73d159634aefebff8c64f60eef6b6ac5ecebc4ae,3881
-  #
+#
   - gtk3-0.15.1@sha256:86cdd17df569aa641835e5bcae304bc405aa397469888a0540860cfc050b788d,19475
+#
+#   - binary-0.8.7.0@sha256:ae3e6cca723ac55c54bbb3fa771bcf18142bc727afd57818e66d6ee6c8044f12,7705
+#   - process-1.4.3.0@sha256:cf30533f073721fd059790f0b963fb9b57e3507cffef5141e9377449570b07ca,2021
+# #
+#   - Cabal-1.24.2.0@sha256:b2adb58476f49a514c4cd4542d55857f25733c440cd6528185e451d14fcdcc96,14791
+#   - HaXml-1.25.5@sha256:8f18057ffbf20e71af67a1338bde2f0c4f8e1e326230ada57cf7e967953a46c7,4380
+#   - containers-0.5.11.0@sha256:28ad7337057442f75bc689315ab4ec7bdf5e6b2c39668f306672cecd82c02798,16685
+#   - regex-compat-0.93.1@sha256:08c744e19e9cad40957eb558662d7f4bcce1c9e7aef3eac2df62893adff32511,1514
+# # #
+#   - encoding-0.8.2@sha256:6e93b8383e195ef4eb37308a5e3fd1f26b4cd873b6845d9c8ec80d3dacd37793,4142
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

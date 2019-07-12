@@ -6,5 +6,5 @@ import           Writer
 
 main :: IO ()
 main = do
-  -- writeRTF
-  startGUI
+  writeRTF
+  -- startGUI
