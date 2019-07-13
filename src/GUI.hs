@@ -57,4 +57,5 @@ startGUI out = do
   display1_1 `on` entryActivated $ do
     test <- (entryGetText display1_1) :: IO String
     appendRTFStringOrPara out (Paragraph QCenter [RTFString Roman test])
+    return ()
   mainGUI               -- (5)~
