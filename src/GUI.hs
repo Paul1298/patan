@@ -17,45 +17,41 @@ mkBtn label = do
 
 startGUI :: Handle -> IO ()
 startGUI out = do
-  void initGUI          -- (1)
-  window <- windowNew   -- (2)
+  void initGUI
+  window <- windowNew
   set window [ windowTitle         := "ПаТаН"
              -- , windowResizable     := False
              , windowDefaultWidth  := 500
              , windowDefaultHeight := 100 ]
   display1 <- entryNew
-  set display1 [
-                 entryEditable := False
-               , entryXalign   := 1 -- makes contents right-aligned
-               , entryText     := "Номер по порядку"
-               ]
-  display1_1 <- entryNew
-  -- widgetModifyText display1_1 StateNormal (Color 0 65535 0)
-  set display1_1 [ entryPlaceholderText := Just "Ввод 1"
-                 ]
+  set display1 [ entryPlaceholderText := Just "Номер по порядку" ]
+  grid1 <- gridNew
   display2 <- entryNew
-  set display2 [  entryEditable := False
-                , entryXalign   := 0 -- makes contents right-aligned
-                , entryText     := "И сюда" ]
-  grid <- gridNew                  -- (1)
-  gridSetRowHomogeneous grid True  -- (2)
-  gridSetColumnHomogeneous grid True  -- (2)
-  let attach x y w h item = gridAttach grid item x y w h -- (3)
-  attach 0 0 1 1 display1           -- (4)
-  attach 1 0 1 1 display1_1           -- (4)
+  set display2 [ entryPlaceholderText := Just "4. Пол:" ]
+  grid2 <- gridNew
+  -- gridSetRowHomogeneous grid True  -- (2)
+  -- gridSetColumnHomogeneous grid True  -- (2)
 
-  -- attach 0 1 1 1 display2           -- (4)
-  -- mkBtn "MC"  >>= attach 0 1 1 1   -- (5)
+  -- gridAttach grid1 display1 2 0 1 1
+  -- gridAttach grid2 display2 0 0 1 1
 
-  containerAdd window grid
+  containerAdd window display1
 
-  widgetShowAll window  -- (4)
+  widgetShowAll window
 
   window `on` deleteEvent $ do -- handler to run on window destruction
     liftIO mainQuit
     return False
-  display1_1 `on` entryActivated $ do
-    test <- (entryGetText display1_1) :: IO String
-    appendRTFStringOrPara out (Paragraph QCenter [RTFString Roman test])
-    return ()
+
+  display1 `on` entryActivated $ do
+    text <- (entryGetText display1) :: IO String
+    appendRTFStringOrPara out (Paragraph QCenter [RTFString Roman text])
+    containerRemove window display1
+    containerAdd window display2
+    widgetShowAll window
+    -- return ()
+  display2 `on` entryActivated $ do
+    text <- (entryGetText display2) :: IO String
+    appendRTFStringOrPara out (Paragraph QLeft [RTFString Bold text])
+    liftIO mainQuit
   mainGUI               -- (5)~
