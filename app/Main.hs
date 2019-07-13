@@ -3,8 +3,14 @@ import           GUI
 import           Template
 import           Writer
 
+import           System.IO
 
 main :: IO ()
 main = do
-  writeRTF
-  -- startGUI
+  te <- mkTextEncoding "CP1251"
+  out <- openFile pathFile WriteMode
+  hSetEncoding out te
+  writeRTF out
+  startGUI out
+  hPutStr out "}"
+  hClose out

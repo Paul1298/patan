@@ -1,11 +1,10 @@
 module Writer where
-import           Data.Char (chr)
 import           Data.List (intercalate)
 import           System.IO
 
+-- import           GUI       (startGUI)
 import           Headers
 import           Text
-
 
 data Format = Bold | Roman
 
@@ -46,24 +45,8 @@ defsize = 10
 
 startRTF = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
 
-writeRTF :: IO ()
-writeRTF = do
-  te <- mkTextEncoding "CP1251"
-  out <- openFile pathFile WriteMode
-  hSetEncoding out te
+writeRTF :: Handle -> IO ()
+writeRTF out = do
   hPutStrLn out startRTF
   let h = [Paragraph QCenter [RTFString Bold h] | h <- headers]
   appendRTFStringOrPara out h
-  -- -- mapM (TIO.appendFile pathFile) headers
-  -- -- let f = [Paragraph QJustify [RTFString Bold x] | x <- text]
-  -- -- appendRTFStringOrPara f
-  -- -- mapM appendRTFStringOrPara f
-  -- -- conv <- open "CP1251" Nothing
-  -- -- let bs = BSU.fromString "Русский"
-  -- -- TIO.appendFile pathFile (toUnicode conv $ bs)
-  -- -- s <- getDefaultName
-  -- -- mapM putStrLn converterNames
-  -- -- TIO.writeFile pathFile $ T.pack "Пример нормального отображение русских букв в консоли"
-  hPutStrLn out "Русский"
-  hPutStr out "}"
-  hClose out
