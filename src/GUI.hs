@@ -10,6 +10,7 @@ import           System.IO
 import           Text
 import           Writer
 
+-- cal <- calendarNew -- calendar
 startGUI :: Handle -> IO ()
 startGUI out = do
   void initGUI
@@ -18,23 +19,19 @@ startGUI out = do
              -- , windowDeletable     := False
              , windowDefaultWidth  := 500
              , windowDefaultHeight := 100 ]
-  field1 <- entryNew
-  let fields = replicate 7 field1
-  -- putStrLn $ show $ zip text text
+  fields <- sequence $ replicate 7 entryNew
   sequence_ [set x [entryPlaceholderText := Just temp] | (x, temp) <- zip fields text] -- setup fields
   grid1 <- gridNew
-  cal <- calendarNew
   -- set display2 [ entryPlaceholderText := Just "4. Пол:" ]
   -- grid2 <- gridNew
-  -- -- gridSetRowHomogeneous grid True  -- (2)
+  gridSetRowHomogeneous grid1 True -- rows same height
   -- -- gridSetColumnHomogeneous grid True  -- (2)
   --
-  -- gridAttach grid1 display1 0 0 1 1
+  sequence_ [gridAttach grid1 field 0 i 1 1 | (field, i) <- zip fields [0..6]]
   -- -- gridAttach grid1 display3 0 1 1 1
   -- gridAttach grid1 sb 5 1 5 5
   --
-  -- containerAdd window (fields !! 5)
-  containerAdd window cal
+  containerAdd window grid1
   --
 
   --
