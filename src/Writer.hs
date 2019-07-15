@@ -33,20 +33,25 @@ data Paragraph = Paragraph { alignment :: Quadding
                            }
 
 instance Show Paragraph where
-  show (Paragraph a cs) = "{\\pard" ++ show a ++ "\n" ++ showList cs "" ++ "\n\\par}\n"
+  show (Paragraph a cs) = "{\\pard" ++ show a ++ "\n" ++ showList cs "" ++ "\n\\par}"
   showList ps = (++) $ intercalate "\n" (map show ps)
 
-pathFile = "test.rtf"
 
 appendRTFStringOrPara :: (Show a) => Handle -> a -> IO ()
 appendRTFStringOrPara out s = hPutStrLn out (show s)
 
+pathFile = "test.rtf"
+
 defsize = 10
 
-startRTF = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
+heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
 
-writeRTF :: Handle -> IO ()
-writeRTF out = do
-  hPutStrLn out startRTF
-  let h = [Paragraph QCenter [RTFString Bold h] | h <- headers]
-  appendRTFStringOrPara out h
+startRTF :: Handle -> IO ()
+startRTF out = hPutStrLn out heading
+
+writeText1 :: Handle -> [String] -> IO ()
+writeText1 out answers = do
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold h, RTFString Roman a] | h <- headers, a <- answers]
+
+endRTF :: Handle -> IO ()
+endRTF out = hPutStr out "}"

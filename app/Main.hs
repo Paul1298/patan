@@ -10,7 +10,7 @@ main = do
   te <- mkTextEncoding "CP1251"
   out <- openFile pathFile WriteMode
   hSetEncoding out te
-  writeRTF out
+  startRTF out
   startGUI out
-  hPutStr out "}"
+  endRTF out
   hClose out
