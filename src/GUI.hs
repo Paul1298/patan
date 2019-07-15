@@ -44,11 +44,7 @@ startGUI out = do
   mapM activ fields
 
   let quitEnt = last fields
-  quitEnt `on` entryActivated $ do
-    q <- entryGetPlaceholderText quitEnt
-    a <- entryGetText quitEnt
-    writeText1 out (fromMaybe "Fix me" q) a
-    liftIO mainQuit
+  quitEnt `on` entryActivated $ liftIO mainQuit
 
   window `on` deleteEvent $ liftIO mainQuit >> return False
 
