@@ -40,7 +40,7 @@ instance Show Paragraph where
 appendRTFStringOrPara :: (Show a) => Handle -> a -> IO ()
 appendRTFStringOrPara out s = hPutStrLn out (show s)
 
-pathFile = "test.docx"
+pathFile = "test.rtf"
 
 defsize = 10
 
