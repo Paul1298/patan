@@ -17,7 +17,7 @@ data RTFString = RTFString { format  :: Format
                            }
 
 instance Show RTFString where
-  show (RTFString f c) = show f ++ c
+  show (RTFString f c) = "{" ++  show f ++ c ++ "}"
   showList cs = (++) $ intercalate "\n" (map show cs)
 
 data Quadding = QLeft | QCenter | QRight | QJustify
@@ -49,9 +49,9 @@ heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\f
 startRTF :: Handle -> IO ()
 startRTF out = hPutStrLn out heading
 
-writeText1 :: Handle -> [String] -> IO ()
-writeText1 out answers = do
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold h, RTFString Roman a] | h <- headers, a <- answers]
+writeText1 :: Handle -> String -> String -> IO ()
+writeText1 out q a = do
+  appendRTFStringOrPara out (Paragraph QLeft [RTFString Bold q, RTFString Roman a]) -- q & a
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"
