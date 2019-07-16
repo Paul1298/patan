@@ -49,9 +49,9 @@ heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\f
 startRTF :: Handle -> IO ()
 startRTF out = hPutStrLn out heading
 
-writeText1 :: Handle -> String -> String -> IO ()
-writeText1 out q a = do
-  appendRTFStringOrPara out (Paragraph QLeft [RTFString Bold q, RTFString Roman a]) -- q & a
+writeText1 :: Handle -> [String] -> IO ()
+writeText1 out as = do
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip text1 as] -- q & a
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"
