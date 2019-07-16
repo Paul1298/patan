@@ -11,39 +11,51 @@ import qualified Data.Vector.Mutable         as M
 import           Graphics.UI.Gtk             hiding (Action, backspace)
 import           Graphics.UI.Gtk.Layout.Grid
 import           System.IO
+import           System.Process
 
 import           Text
 import           Writer
 
-startGUI :: Handle -> IO ()
-startGUI out = do
+initRTF :: IO Handle
+initRTF = do
+  te <- mkTextEncoding "CP1251"
+  out <- openFile pathFile WriteMode
+  hSetEncoding out te
+  startRTF out
+  return out
+
+startGUI :: IO ()
+startGUI = do
+  out <- initRTF
   void initGUI
   window <- windowNew
-  set window [ windowTitle         := "ПаТаН"
+  set window [ windowTitle         := "ПаТаН" ]
              -- , windowDeletable     := False
-             , windowDefaultWidth  := 500
-             , windowDefaultHeight := 600 ]
+             -- , windowDefaultWidth  := 500
+             -- , windowDefaultHeight := 600 ]
   -- toArray
-  fields <- sequence $ replicate 7 entryNew
+  let n = length text1
+
+  fields <- sequence $ replicate n entryNew
   -- attrs = [ ent]
   sequence_ [set x [entryPlaceholderText := Just temp] | (x, temp) <- zip fields text1] -- setup fields
   grid1 <- gridNew
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
   --
-  sequence_ [gridAttach grid1 field 0 i 4 1 | (field, i) <- zip fields [0..6]]
+  sequence_ [gridAttach grid1 field 0 i 4 1 | (field, i) <- zip fields [0..n - 1]]
 
   cal <- calendarNew -- calendar
-  -- gridAttach grid1 cal 0 7 4 1
+  gridAttach grid1 cal 0 n 4 1
 
   tb <- checkButtonNewWithLabel "Готово"
-  gridAttach grid1 tb 3 8 1 1
+  gridAttach grid1 tb 3 (n + 1) 1 1
 
   -- exitb <- checkButtonNewWithLabel "Выход"
   -- gridAttach grid1 tb 3 9 1 1
 
-  -- cb <- comboBoxNewText
-  -- set cb [comboBoxTitle := "4. Пол:"]
+  -- cb <- new comboBoxNewText [comboBoxTitle := "4. Пол:"]
+  -- -- set cb [comboBoxTitle := "4. Пол:"]
   -- comboBoxPrependText cb $ T.pack "Мужской"
   -- comboBoxPrependText cb $ T.pack "Женский"
   -- comboBoxGetTitle cb >>= putStrLn
@@ -53,7 +65,7 @@ startGUI out = do
 
   widgetShowAll window
 
-  mv <- M.new 7
+  mv <- M.replicate n ""
   -- signals section
 
   -- Enrties
@@ -65,8 +77,13 @@ startGUI out = do
 
   -- Готово
   tb `on` toggled $ do
+    buttonSetLabel tb "Не нажимать"
+    r <- createProcess (proc "loffice" [pathFile]) -- linux
+    -- r <- createProcess (proc "start" [pathFile]) -- win
     tmp <- freeze mv
     writeText1 out (toList tmp)
+    endRTF out
+    hClose out
 
   window `on` deleteEvent $ liftIO mainQuit >> return False
 
