@@ -38,13 +38,12 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , bytestring
-    -- , encoding
+    -- , bytestring
+    , vector
     , text
-    , text-icu
     , gtk2hs-buildtools
     , gtk3
-    , utf8-string
+    -- , utf8-string
   default-language: Haskell2010
 
 executable patan-exe
