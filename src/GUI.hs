@@ -26,25 +26,28 @@ startGUI out = do
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
   --
-  sequence_ [gridAttach grid1 field 0 i 1 1 | (field, i) <- zip fields [0..6]]
+  sequence_ [gridAttach grid1 field 0 i 4 1 | (field, i) <- zip fields [0..6]]
 
   cal <- calendarNew -- calendar
-  gridAttach grid1 cal 0 7 1 1
+  gridAttach grid1 cal 0 7 4 1
+
+  tb <- checkButtonNewWithLabel "Готово"
+  gridAttach grid1 tb 3 8 1 1
 
   containerAdd window grid1
-  --
-  --
+
+
+
   widgetShowAll window
 
   -- signals section
+  tb `on` toggled $ liftIO mainQuit
+
   let activ f = f `on` entryActivated $ do
               q <- entryGetPlaceholderText f
               a <- entryGetText f
               writeText1 out (fromMaybe "Fix me" q) a
   mapM activ fields
-
-  let quitEnt = last fields
-  quitEnt `on` entryActivated $ liftIO mainQuit
 
   window `on` deleteEvent $ liftIO mainQuit >> return False
 
