@@ -52,19 +52,19 @@ startGUI = do
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
 
-  ls <- listStoreNew ["ыв", "авы", "ыва"]
-  cb <- comboBoxNewWithModel ls
+  -- ls <- listStoreNew ["ыв", "авы", "ыва"]
+  -- cb <- comboBoxNewWithModel ls
 
   -- comboBoxPrependText cb $ T.pack "Мужской"
   -- comboBoxPrependText cb $ T.pack "Женский"
   -- comboBoxSetActive cb 0
   -- comboBoxGetTitle cb >>= putStrLn
-  gridAttach grid1 cb 3 3 1 1
+  -- gridAttach grid1 cb 3 3 1 1
   --
   -- cls <- comboBoxSetModelText cb >>= listStoreToList
 
-  -- sequence_ [gridAttach grid1 temp 0 i 3 1 | (temp, i) <- zip temps [0..n - 1]]
-  -- sequence_ [gridAttach grid1 field 3 i 1 1 | (field, i) <- zip (V.toList fields) [0..n - 1]]
+  sequence_ [gridAttach grid1 temp 0 i 3 1 | (temp, i) <- zip temps [0..n - 1]]
+  sequence_ [gridAttach grid1 field 3 i 1 1 | (field, i) <- zip (V.toList fields) [0..n - 1]]
 
   -- cal <- calendarNew -- calendar
   -- gridAttach grid1 cal 0 n 1 1
@@ -77,6 +77,7 @@ startGUI = do
   widgetShowAll window
 
   mv <- M.replicate n ""
+
   -- signals section
 
   -- Enrties
