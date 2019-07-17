@@ -38,7 +38,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    -- , bytestring
+    , containers
     , gtk2hs-buildtools
     , gtk3
     , process
@@ -56,6 +56,9 @@ executable patan-exe
   build-depends:
       base >=4.7 && <5
     , patan
+    , gtk2hs-buildtools
+    , gtk3
+    , text
   default-language: Haskell2010
 
 test-suite patan-test
