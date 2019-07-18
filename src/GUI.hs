@@ -16,7 +16,7 @@ import           Writer
 
 initRTF :: IO Handle
 initRTF = do
-  te <- mkTextEncoding "CP1251"
+  te <- mkTextEncoding "UTF8"
   out <- openFile pathFile WriteMode
   hSetEncoding out te
   startRTF out
@@ -66,10 +66,12 @@ startGUI = do
 
   let n = length text1
 
-  temps <- sequence [labelNew $ Just t | t <- text1]
-  sequence_ [miscSetAlignment t 0 0 | t <- temps]
-  sequence_ [gridAttach grid1 temp 0 i 3 1 | (temp, i) <- zip temps [0..n - 1]]
+  -- labels
+  labels <- sequence [labelNew $ Just t | t <- text1] -- init labels
+  sequence_ [miscSetAlignment l 0 0 | l <- labels] -- left alignment labels
+  sequence_ [gridAttach grid1 l 0 i 3 1 | (l, i) <- zip labels [0..n - 1]] -- attach them
 
+  -- entries with comboBox
   fields <- sequence . V.fromList $ replicate n entryNew
   sequence_ [gridAttach grid1 field 3 i 1 1 | (field, i) <- zip (V.toList fields) [0..n - 1]]
 
@@ -89,7 +91,6 @@ startGUI = do
 
   -- cal <- calendarNew -- calendar
   -- gridAttach grid1 cal 0 n 1 1
-
 
   containerAdd window grid1
   -- containerAdd window label
