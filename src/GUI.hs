@@ -27,13 +27,10 @@ initRTF = do
   startRTF out
   return out
 
-foo :: StateType -> IO ()
-foo StateSelected = putStrLn "focused!"
-foo _             = putStrLn "NoT"
+
 
 startGUI :: IO ()
 startGUI = do
-  out <- initRTF
   initGUI
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
@@ -48,8 +45,6 @@ startGUI = do
   fields <- sequence . V.fromList $ replicate n entryNew
   sequence_ [miscSetAlignment t 0 0 | t <- temps]
 
-  -- attrs = [ ent]
-  -- sequence_ [set x [ entryEditable := False, entryText := temp] | (x, temp) <- zip temps text1] -- setup fields
   grid1 <- gridNew
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
@@ -102,6 +97,7 @@ startGUI = do
 
   -- Готово
   tb `on` toggled $ do
+    out <- initRTF
     buttonSetLabel tb "Не нажимать"
     tmp <- V.freeze mv
     writeText1 out (V.toList tmp)
