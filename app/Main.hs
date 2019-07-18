@@ -8,6 +8,7 @@ import           GUI
 textColumn :: ColumnId String T.Text
 textColumn = makeColumnIdString 0
 
+main :: IO ()
 main = do
   startGUI
   -- initGUI
