@@ -44,10 +44,12 @@ startGUI = do
   -- toArray
   let n = length text1
 
-  temps <- sequence $ replicate n entryNew
+  temps <- sequence [labelNew $ Just t | t <- text1]
   fields <- sequence . V.fromList $ replicate n entryNew
+  sequence_ [miscSetAlignment t 0 0 | t <- temps]
+
   -- attrs = [ ent]
-  sequence_ [set x [ entryEditable := False, entryText := temp] | (x, temp) <- zip temps text1] -- setup fields
+  -- sequence_ [set x [ entryEditable := False, entryText := temp] | (x, temp) <- zip temps text1] -- setup fields
   grid1 <- gridNew
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
@@ -73,7 +75,11 @@ startGUI = do
   gridAttach grid1 tb 3 (n + 1) 1 1
 
 
+    -- Pressing Alt+H will activate this button
+  -- label <- labelNew $ Just "This"
+
   containerAdd window grid1
+  -- containerAdd window label
   widgetShowAll window
 
   mv <- M.replicate n ""
