@@ -40,10 +40,13 @@ instance Show Paragraph where
 appendRTFStringOrPara :: (Show a) => Handle -> a -> IO ()
 appendRTFStringOrPara out s = hPutStrLn out (show s)
 
+pathFile :: String
 pathFile = "test.rtf"
 
+defsize :: Integer
 defsize = 10
 
+heading :: String
 heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
 
 startRTF :: Handle -> IO ()

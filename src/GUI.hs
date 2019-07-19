@@ -11,12 +11,13 @@ import           Graphics.UI.Gtk
 import           System.IO
 import           System.Process
 
+import           DefCombo
 import           Text
 import           Writer
 
 initRTF :: IO Handle
 initRTF = do
-  te <- mkTextEncoding "UTF8"
+  te <- mkTextEncoding "CP1251"
   out <- openFile pathFile WriteMode
   hSetEncoding out te
   startRTF out
@@ -25,15 +26,17 @@ initRTF = do
 signals :: Int -> V.Vector Entry -> CheckButton -> Window -> IO (ConnectId Window)
 signals n fields checkb window = do
   -- signals section
+  replicate
+  rep
   mv <- M.replicate n ""
 
   -- Enrties
-  -- let activ f = f `on` entryActivated $ do --use this!
-  --               a <- entryGetText f :: IO String
-  --               let (Just i) = f `V.elemIndex` fields
-  --               M.write mv i a
-  -- mapM activ fields
-  --
+  let activ f = f `on` entryActivated $ do --use this!
+                a <- entryGetText f :: IO String
+                let (Just i) = f `V.elemIndex` fields
+                M.write mv i a
+  mapM_ activ fields
+
   -- -- test
   -- (fields V.! 0) `on` editableChanged $ do
   --   putStrLn "Ай"
@@ -72,8 +75,19 @@ startGUI = do
   sequence_ [gridAttach grid1 l 0 i 3 1 | (l, i) <- zip labels [0..n - 1]] -- attach them
 
   -- entries with comboBox
-  fields <- sequence . V.fromList $ replicate n entryNew
-  sequence_ [gridAttach grid1 field 3 i 1 1 | (field, i) <- zip (V.toList fields) [0..n - 1]]
+  -- fields <- sequence . V.fromList $ replicate n entryNew
+
+  let textColumn = makeColumnIdString 0
+
+  stores <- sequence [listStoreNew def | def <- def1]
+  sequence_ [customStoreSetColumn store textColumn (\x -> T.pack x) | store <- stores ] -- set the extraction function
+
+  combos <- sequence [comboBoxNewWithModelAndEntry store | store <- stores ]
+  sequence_ [comboBoxSetEntryTextColumn combo textColumn | combo <- combos ] -- set which column should be used
+  sequence_ [gridAttach grid1 field 3 i 1 1 | (field, i) <- zip combos [0..n - 1]]
+
+  ens <- mapM containerGetChildren combos
+  let fields = V.fromList $ (map (castToEntry . head) ens)
 
   checkb <- checkButtonNewWithLabel "Готово"
   gridAttach grid1 checkb 3 (n + 1) 1 1
@@ -92,11 +106,11 @@ startGUI = do
   -- cal <- calendarNew -- calendar
   -- gridAttach grid1 cal 0 n 1 1
 
+
+  -- combo `on` entryActivated $ putStrLn "Ай"
   containerAdd window grid1
-  -- containerAdd window label
   widgetShowAll window
 
   _ <- signals n fields checkb window
-
   -- start!
   mainGUI
