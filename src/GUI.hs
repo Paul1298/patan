@@ -38,12 +38,15 @@ signals entries checkb window = do
     mapM entryGetText entries >>= writeText1 out
     endRTF out
     hClose out
-    _ <- createProcess (proc "loffice" [pathFile]) --linux
+    -- _ <- createProcess (proc "loffice" [pathFile]) --linux
     -- _ <- runCommand ("start " ++ pathFile) --win
     return ()
 
   -- Закрытие окна
   window `on` deleteEvent $ liftIO mainQuit >> return False
+
+instance Show TreeModel where
+  show _ = "asd"
 
 startGUI :: IO ()
 startGUI = do
@@ -83,6 +86,20 @@ startGUI = do
 
   checkb <- checkButtonNewWithLabel "Готово"
   gridAttach grid1 checkb 3 (n + 1) 1 1
+
+  _ <- checkb `on` toggled $ do
+    -- entrySetText (entries !! 6) "sdsad"
+    st <- listStoreNew ["sdfsf"]
+    customStoreSetColumn st textColumn (\x -> pack x)
+    ecq <- entryGetCompletion (entries !! 6)
+    entryCompletionSetModel ecq (Just st)
+    -- entryCompletionSetTextColumn ecq textColumn
+    -- entrySetCompletion (entries !! 6) ecq
+    -- Just a <- entryCompletionGetModel (ecompls !! 10)
+    -- putStrLn $ show a
+    -- entryCompletionInsertActionText (ecompls !! 10) 4 "asd"
+    -- entryCompletionDeleteAction (ecompls !! 10) 1
+    -- entryCompletionInsertPrefix (ecompls !! 10)
 
   -- cal <- calendarNew -- calendar
   -- gridAttach grid1 cal 0 n 1 1

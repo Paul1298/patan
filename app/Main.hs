@@ -1,9 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
-import           Graphics.UI.Gtk
+import           Codec.Xlsx
+import           Control.Lens
+import qualified Data.ByteString.Lazy as L
 
-import           GUI
 main :: IO ()
 main = do
-  _ <- initGUI
-  startGUI
-  mainGUI
+  bs <- L.readFile "Летальность.xlsx"
+  let value = toXlsx bs ^? ixSheet "Лист1" .
+              ixCell (1, 1) . cellValue . _Just
+  putStrLn $ show value
