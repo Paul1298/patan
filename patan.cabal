@@ -29,10 +29,12 @@ library
   exposed-modules:
       DefCombo
       GUI
+      Labels
       Headers
       Template
       Text
       Writer
+      Xman
   other-modules:
       Paths_patan
   hs-source-dirs:
@@ -40,12 +42,15 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , gtk2hs-buildtools
     , gtk3
+    , lens
     , process
     , text
     , vector
+    , xlsx
   default-language: Haskell2010
 
 executable patan-exe
@@ -58,10 +63,10 @@ executable patan-exe
   build-depends:
       base >=4.7 && <5
     , bytestring
-    , lens
-    , patan
     , gtk2hs-buildtools
     , gtk3
+    , lens
+    , patan
     , text
     , xlsx
   default-language: Haskell2010

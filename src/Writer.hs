@@ -2,7 +2,6 @@ module Writer where
 import           Data.List (intercalate)
 import           System.IO
 
--- import           GUI       (startGUI)
 import           Headers
 import           Text
 
@@ -48,6 +47,14 @@ defsize = 10
 
 heading :: String
 heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
+
+initRTF :: IO Handle
+initRTF = do
+  te <- mkTextEncoding "CP1251"
+  out <- openFile pathFile WriteMode
+  hSetEncoding out te
+  startRTF out
+  return out
 
 startRTF :: Handle -> IO ()
 startRTF out = hPutStrLn out heading

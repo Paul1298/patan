@@ -185,7 +185,7 @@ steps:
 
   # Replace tabs by spaces. This is disabled by default.
   # - tabs:
-  #     # Number of spaces to use for each tab. Default: 8, as specified by the
+  #     # number of spaces to use for each tab. Default: 8, as specified by the
   #     # Haskell report.
   #     spaces: 8
 
