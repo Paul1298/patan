@@ -20,8 +20,12 @@ getEntry c = do
 
 foo :: [Entry] -> TreeIter -> IO Bool
 foo entries (TreeIter _ i _ _) = do
-  putStrLn $ show (i + 2)
-  getFIO (fromIntegral (i + 2) :: Int) >>= entrySetText (entries !! 3)
+  -- putStrLn $ show (i + 2)
+  [fio, sex, dep, dateDeath] <- getAll (fromIntegral (i + 2))
+  entrySetText (entries !! 3) fio
+  entrySetText (entries !! 6) sex
+  entrySetText (entries !! 5) dep
+  entrySetText (entries !! 8) dateDeath
   return False
 
 signals :: [Entry] -> [EntryCompletion] -> [ComboBox] -> CheckButton -> Window -> IO (ConnectId Window)
@@ -65,19 +69,19 @@ startGUI = do
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labels1] -- init labels
   sequence_ [miscSetAlignment l 0 0 | l <- labels] -- left alignment labels
-  sequence_ [gridAttach grid1 l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
+  sequence_ [gridAttach grid1 l 0 i 2 1 | (l, i) <- zip labels [0..n - 1]] --attach them
 
   let textColumn = makeColumnIdString 0
 
   -- entries with comboBox
   def1 <- initDef1
   stores <- sequence [listStoreNew def | def <- def1]
-  sequence_ [customStoreSetColumn store textColumn (\x -> pack x) | store <- stores ] -- set the extraction function
+  sequence_ [customStoreSetColumn store textColumn id | store <- stores ] -- set the extraction function
 
   -- combos
   combos <- sequence [comboBoxNewWithModelAndEntry store | store <- stores ]
   sequence_ [comboBoxSetEntryTextColumn combo textColumn | combo <- combos ] -- set which column should be used
-  sequence_ [gridAttach grid1 field 1 i 1 1 | (field, i) <- zip combos [0..n - 1]]
+  sequence_ [gridAttach grid1 field 2 i 3 1 | (field, i) <- zip combos [0..n - 1]]
 
   -- entries
   entries <- mapM getEntry combos
@@ -92,7 +96,7 @@ startGUI = do
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
 
   checkb <- checkButtonNewWithLabel "Готово"
-  gridAttach grid1 checkb 1 (n + 1) 1 1
+  gridAttach grid1 checkb 4 (n + 1) 1 1
 
   containerAdd window grid1
 

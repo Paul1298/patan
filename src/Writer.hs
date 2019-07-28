@@ -2,7 +2,6 @@ module Writer where
 import           Data.List (intercalate)
 import           System.IO
 
-import           Headers
 import           Text
 
 data Format = Bold | Roman
@@ -60,8 +59,11 @@ startRTF :: Handle -> IO ()
 startRTF out = hPutStrLn out heading
 
 writeText1 :: Handle -> [String] -> IO ()
-writeText1 out as = do
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip text1 as] -- q & a
+writeText1 out (h : date : org : dep : as) = do
+  appendRTFStringOrPara out [Paragraph QCenter [RTFString Bold (header1 ++ h)]]
+  appendRTFStringOrPara out [Paragraph QCenter [RTFString Roman date]]
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold (head text1), RTFString Roman (org ++ "; " ++ dep)]]
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip (tail text1) as] -- q & a
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"

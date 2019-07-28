@@ -7,7 +7,7 @@ cabal-version: 1.12
 -- hash: d7a5164bb6edf89ee9d8ce94c76849e338cd64abff8548f2126e68d93c888683
 
 name:           patan
-version:        0.1.0.8
+version:        0.1.0.9
 description:    Please see the README on GitHub at <https://github.com/Paul1298/patan#readme>
 homepage:       https://github.com/Paul1298/patan#readme
 bug-reports:    https://github.com/Paul1298/patan/issues
@@ -30,7 +30,6 @@ library
       DefCombo
       GUI
       Labels
-      Headers
       Template
       Text
       Writer

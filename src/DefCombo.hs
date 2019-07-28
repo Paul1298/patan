@@ -1,21 +1,29 @@
+{-# LANGUAGE OverloadedStrings #-}
 module DefCombo where
+import           Data.Text (Text)
+
 import           Xman
 
-initDef1 :: IO [[String]]
+initDef1 :: IO [[Text]]
 initDef1 = do
-  fio <- fio
-  number <- number
-  department <- department
-  return [
-           [ "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
+  fios <- fio
+  numbers <- number
+  departments <- department
+  let
+    orgs = [ "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
            ]
-         , department
-         , number
-         , fio
-         , [
+    sexs = [
              "Мужской"
            , "Женский"
            ]
+  return [
+           []
+         , []
+         , numbers
+         , fios
+         , orgs
+         , departments
+         , sexs
          , []
          , []
          , []
