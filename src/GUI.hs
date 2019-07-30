@@ -1,16 +1,22 @@
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module GUI where
 -- import           Control.Concurrent
 -- import           Control.Monad
 import           Control.Monad.IO.Class
-import           Data.Text              (Text, pack)
+import           Data.IORef
+import           Data.Text              (Text, append, pack)
+-- import           Data.Text.Lazy         (toStrict)
+-- import           Formatting             (format, hex, stext, (%))
 import           Graphics.UI.Gtk
---hiding (Action, backspace)
 import           System.IO
 import           System.Process
+import           Text.Printf            (printf)
 
 import           DefCombo
 import           Labels
-import           Writer
+import           Writer                 hiding (format)
 import           Xman
 
 getEntry :: ComboBox -> IO Entry
@@ -22,23 +28,56 @@ foo :: [Entry] -> TreeIter -> IO Bool
 foo entries (TreeIter _ i _ _) = do
   -- putStrLn $ show (i + 2)
   [fio, sex, dep, dateDeath] <- getAll (fromIntegral (i + 2))
-  entrySetText (entries !! 3) fio
-  entrySetText (entries !! 6) sex
+  entrySetText (entries !! fioLabNum) fio
+  entrySetText (entries !! sexLabNum) sex
   entrySetText (entries !! 5) dep
-  entrySetText (entries !! 8) dateDeath
+  entrySetText (entries !! dateDeathLabNum) dateDeath
   return False
 
+fillDates :: [Entry] -> IO ()
+fillDates entries = do
+  mapM_ fill entries
+  where
+    fill :: Entry -> IO ()
+    fill entry = do
+      entrySetText entry ("__.__.____" :: Text) -- default
+
+      idRef <- newIORef undefined
+      id <- entry `on` insertText $ \(str :: Text) pos -> do
+        id <- readIORef idRef
+        signalBlock id
+        pos' <- newIORef 0
+        if (pos == 2) || (pos == 5)
+          then do
+            editableDeleteText entry (pos + 1) (pos + 2)
+            editableInsertText entry str (pos + 1) >>= writeIORef pos'
+            -- return ()
+          else do
+            editableDeleteText entry pos (pos + 1)
+            editableInsertText entry str pos >>= writeIORef pos'
+            -- return ()
+        signalUnblock id
+        stopInsertText id
+        readIORef pos'
+      writeIORef idRef id
+
+
+-- signals section
 signals :: [Entry] -> [EntryCompletion] -> [ComboBox] -> CheckButton -> Window -> IO (ConnectId Window)
 signals entries ecompls combos checkb window = do
-  -- signals section
+  fillDates [ entries !! dateRepLabNum
+            , entries !! dateBirthLabNum
+            , entries !! dateDeathLabNum
+            , entries !! dateRecLabNum
+            ]
   let
-    numberEC = ecompls !! 2
-    numberCB = combos !! 2
-    fioEC = ecompls !! 3
+    medRecEC = ecompls !! medRecLabNum
+    medRecCB = combos !! medRecLabNum
+    -- fioEC = ecompls !! 3
 
-  numberEC `on` matchSelected $ (\tm ti -> foo entries ti)
-  numberCB `on` changed $ do
-    ti <- comboBoxGetActiveIter numberCB
+  _ <- medRecEC `on` matchSelected $ (\_ ti -> foo entries ti)
+  _ <- medRecCB `on` changed $ do
+    ti <- comboBoxGetActiveIter medRecCB
     case ti of
       Just i -> foo entries i >> return ()
       _      -> return ()
@@ -56,10 +95,11 @@ signals entries ecompls combos checkb window = do
   -- Закрытие окна
   window `on` deleteEvent $ liftIO mainQuit >> return False
 
+
 startGUI :: IO ()
 startGUI = do
   window <- windowNew
-  set window [ windowTitle          := "ПаТаН" ]
+  set window [ windowTitle          := ("ПаТаН" :: Text) ]
   grid1 <- gridNew
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
@@ -95,12 +135,19 @@ startGUI = do
   -- sequence_ [entryCompletionSetMinimumKeyLength ec 0 | ec <- ecompls]
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
 
-  checkb <- checkButtonNewWithLabel "Готово"
+  checkb <- checkButtonNewWithLabel ("Готово" :: Text)
   gridAttach grid1 checkb 4 (n + 1) 1 1
 
+  -- cal <- calendarNew
+  -- _ <- onDaySelectedDoubleClick cal $ do
+  --   (y, m, d) <- calendarGetDate cal
+  --   let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (show y)
+  --   entrySetText (entries !! 1) date
+  --   return ()
+  -- gridAttach grid1 cal 0 (n + 1) 1 1
+
   containerAdd window grid1
+  _ <- signals entries ecompls combos checkb window -- TODO add cbs
 
   widgetShowAll window
-
-  _ <- signals entries ecompls combos checkb window -- TODO add cbs
   return ()

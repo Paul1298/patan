@@ -38,15 +38,12 @@ getFIO row = do
                        . ixCell (row, 2) . cellValue . _Just
   return value
 
-fooo :: Double -> Text
-fooo d = pack $ show d
-
 getAll :: Int -> IO [Text]
 getAll row = do
   bs <- L.readFile "Летальность.xlsx"
   let value c = case help of
                   Just (CellText t)   -> t
-                  Just (CellDouble d) -> fooo d
+                  Just (CellDouble d) -> txtd d
                   _                   -> ""
                   where
                     help = toXlsx bs ^? ixSheet "Лист1"
