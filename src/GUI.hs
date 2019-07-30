@@ -2,14 +2,17 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module GUI where
--- import           Control.Concurrent
--- import           Control.Monad
+import           Control.Monad          (liftM)
 import           Control.Monad.IO.Class
+import           Data.Char              (isDigit)
 import           Data.IORef
-import           Data.Text              (Text, append, pack)
+import           Data.Text              (Text, append, drop, length, take,
+                                         unpack)
 -- import           Data.Text.Lazy         (toStrict)
 -- import           Formatting             (format, hex, stext, (%))
+import qualified Data.List              as L (length)
 import           Graphics.UI.Gtk
+import           Prelude                hiding (drop, length, take)
 import           System.IO
 import           System.Process
 import           Text.Printf            (printf)
@@ -40,27 +43,75 @@ fillDates entries = do
   where
     fill :: Entry -> IO ()
     fill entry = do
-      entrySetText entry ("__.__.____" :: Text) -- default
+      let def = "__.__.____" :: Text
 
-      idRef <- newIORef undefined
-      id <- entry `on` insertText $ \(str :: Text) pos -> do
-        id <- readIORef idRef
-        signalBlock id
-        pos' <- newIORef 0
-        if (pos == 2) || (pos == 5)
-          then do
-            editableDeleteText entry (pos + 1) (pos + 2)
-            editableInsertText entry str (pos + 1) >>= writeIORef pos'
-            -- return ()
-          else do
-            editableDeleteText entry pos (pos + 1)
-            editableInsertText entry str pos >>= writeIORef pos'
-            -- return ()
-        signalUnblock id
-        stopInsertText id
+      entrySetText entry def
+
+      editWrite <- newIORef True
+      editRead <- newIORef True
+
+      idIRef <- newIORef undefined
+      idI <- entry `on` insertText $ \(str :: Text) pos -> do
+        -- putStrLn $ readIORef flag
+        idI <- readIORef idIRef
+        signalBlock idI
+        -- (entryGetText entry :: IO String) >>= length
+        pos' <- newIORef pos
+        flag <- readIORef editWrite
+        -- putStrLn $ show f
+        if flag
+        then
+          if (all (\x -> isDigit x || x == '.') $ unpack str)
+          then
+            if (pos >= 10)
+            then writeIORef pos' 10
+            else
+              if (pos == 2) || (pos == 5)
+              then do
+                p <- editableInsertText entry str (pos + 1)
+                writeIORef pos' p
+                writeIORef editRead False
+                editableDeleteText entry p (p + length str)
+                writeIORef editRead True
+              else do
+                p <- editableInsertText entry str pos
+                putStrLn ((unpack str) ++ " on " ++ show pos)
+                writeIORef pos' p
+                writeIORef editRead False
+                editableDeleteText entry p (p + length str)
+                writeIORef editRead True
+          else return ()
+        else editableInsertText entry str pos >>= writeIORef pos'
+
+        signalUnblock idI
+        stopInsertText idI
         readIORef pos'
-      writeIORef idRef id
+      writeIORef idIRef idI
 
+      idDRef <- newIORef undefined
+      idD <- entry `on` deleteText $ \startPos endPos -> do
+        -- len <- liftM length (entryGetText entry :: IO String)
+        idD <- readIORef idDRef
+        signalBlock idD
+        putStrLn (show startPos ++ " -- " ++ show endPos)
+        editableDeleteText entry startPos endPos
+        let tmp = if (endPos < 0) then 10 else endPos
+        entryGetText entry >>= putStrLn
+        flag <- readIORef editRead
+        if flag
+        then
+          if (startPos > 9)
+          then return ()
+          else do
+            let substr = take (tmp - startPos) (drop startPos def)
+            -- putStrLn $ unpack substr
+            writeIORef editWrite False
+            editableInsertText entry substr startPos
+            writeIORef editWrite True
+        else return ()
+        signalUnblock idD
+        stopDeleteText idD
+      writeIORef idDRef idD
 
 -- signals section
 signals :: [Entry] -> [EntryCompletion] -> [ComboBox] -> CheckButton -> Window -> IO (ConnectId Window)
@@ -104,7 +155,7 @@ startGUI = do
   -- gridSetRowHomogeneous grid1 True -- rows same height
   gridSetColumnHomogeneous grid1 True
 
-  let n = length labels1
+  let n = L.length labels1
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labels1] -- init labels
@@ -138,13 +189,13 @@ startGUI = do
   checkb <- checkButtonNewWithLabel ("Готово" :: Text)
   gridAttach grid1 checkb 4 (n + 1) 1 1
 
-  -- cal <- calendarNew
-  -- _ <- onDaySelectedDoubleClick cal $ do
-  --   (y, m, d) <- calendarGetDate cal
-  --   let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (show y)
-  --   entrySetText (entries !! 1) date
-  --   return ()
-  -- gridAttach grid1 cal 0 (n + 1) 1 1
+  cal <- calendarNew
+  _ <- onDaySelectedDoubleClick cal $ do
+    (y, m, d) <- calendarGetDate cal
+    let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (printf "%04d" y)
+    entrySetText (entries !! dateRepLabNum) date
+    return ()
+  gridAttach grid1 cal 0 (n + 1) 1 1
 
   containerAdd window grid1
   _ <- signals entries ecompls combos checkb window -- TODO add cbs

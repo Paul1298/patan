@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Labels where
 import           Data.List (findIndex, isSubsequenceOf)
+import           Data.Text (Text, unpack)
 
-labels1 :: [String]
+labels1 :: [Text]
 labels1 = [
           "№ протокола"
         , "Дата протокола"
@@ -20,9 +22,16 @@ labels1 = [
         , "Дата поступления"
         ]
 
-search :: String -> Int
+-- TODO
+-- isSubsequenceOf :: Text -> Text -> Bool
+-- isSubsequenceOf empty _                    = False
+-- isSubsequenceOf _     empty                = True
+-- isSubsequenceOf a@(x:a') (y:b) | x == y    = isSubsequenceOf a' b
+--                                | otherwise = isSubsequenceOf a b
+
+search :: Text -> Int
 search s =
-  let (Just i) = findIndex (\x -> s `isSubsequenceOf` x) labels1
+  let (Just i) = findIndex (\x -> (unpack s) `isSubsequenceOf` (unpack x)) labels1
   in i
 
 medRecLabNum, fioLabNum, sexLabNum :: Int
