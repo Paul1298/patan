@@ -49,7 +49,7 @@ library
     , lens
     , process
     , text
-    , vector
+    , time
     , xlsx
   default-language: Haskell2010
 

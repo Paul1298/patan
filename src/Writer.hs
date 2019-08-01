@@ -1,6 +1,7 @@
 module Writer where
-import           Data.List (intercalate)
+import           Data.List   (intercalate)
 import           System.IO
+import           Text.Printf (printf)
 
 import           Text
 
@@ -59,11 +60,17 @@ startRTF :: Handle -> IO ()
 startRTF out = hPutStrLn out heading
 
 writeText1 :: Handle -> [String] -> IO ()
-writeText1 out (h : date : org : dep : as) = do
-  appendRTFStringOrPara out [Paragraph QCenter [RTFString Bold (header1 ++ h)]]
-  appendRTFStringOrPara out [Paragraph QCenter [RTFString Roman date]]
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold (head text1), RTFString Roman (org ++ "; " ++ dep)]]
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip (tail text1) as] -- q & a
+writeText1 out ( numRep
+               : dateRep
+               : medRec
+               : fio
+               : org
+               : dep
+               : as) = do
+  appendRTFStringOrPara out [Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]]
+  appendRTFStringOrPara out [Paragraph QCenter [RTFString Roman dateRep]]
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold (head text1), RTFString Roman (org ++ "; " ++ dep ++ ".")]]
+  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip (tail text1) (medRec : fio : as)] -- q & a
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"

@@ -6,9 +6,9 @@ import           Xman
 
 initDef1 :: IO [[Text]]
 initDef1 = do
-  fios <- fio
-  numbers <- number
-  departments <- department
+  fios <- fioX
+  numbers <- numberX
+  departments <- deptX
   let
     orgs  = [ "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
             ]
@@ -63,5 +63,13 @@ initDef1 = do
          , marriages
          , educations
          , employments
+         , []
+         , []
+         , []
+         , [ "Да", "Нет" ]
+         , []
+         , []
+         , []
+         , []
          , []
          ]

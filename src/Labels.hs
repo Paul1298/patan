@@ -20,6 +20,15 @@ labels1 = [
         , "Образование"
         , "Занятость"
         , "Дата поступления"
+        , "Доставлен в медицинскую организацию"
+        , "ФИО лечащего врача"
+        , "Леч. врач (зав. отделением)\nприсутствовал на вскрытии?\n"
+        , "Дата вскрытия"
+        , "Основные клинические данные"
+        , "Заключительный клинический диагноз"
+        , "Основное заболевание"
+        , "Осложнения основного заболевания"
+        , "Сопутствующие заболевания"
         ]
 
 -- TODO
@@ -35,17 +44,13 @@ search s =
   in i
 
 medRecLabNum, fioLabNum, sexLabNum :: Int
-dateRepLabNum,  dateBirthLabNum, dateDeathLabNum, dateRecLabNum :: Int
 medRecLabNum = search "Медицинская карта №"
-fioLabNum = search "Фамилия, имя, отчество"
-sexLabNum = search "Пол"
+fioLabNum    = search "Фамилия, имя, отчество"
+sexLabNum    = search "Пол"
 
-dateRepLabNum = search "Дата протокола"
+dateRepLabNum,  dateBirthLabNum, dateDeathLabNum, dateRecLabNum, datePsyLabNum :: Int
+dateRepLabNum   = search "Дата протокола"
 dateBirthLabNum = search "Дата рождения"
 dateDeathLabNum = search "Дата смерти"
-dateRecLabNum = search "Дата поступления"
-
-
-
--- fioLabNum :: Int
--- fioLabNum = search "Фамилия, имя, отчество"
+dateRecLabNum   = search "Дата поступления"
+datePsyLabNum   = search "Дата вскрытия"
