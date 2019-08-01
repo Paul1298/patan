@@ -178,7 +178,7 @@ startGUI = do
   -- combos
   combos <- sequence [comboBoxNewWithModelAndEntry store | store <- stores ]
   sequence_ [comboBoxSetEntryTextColumn combo textColumn | combo <- combos ] -- set which column should be used
-  sequence_ [gridAttach grid1 field 1 i 1 1 | (field, i) <- zip combos [0..n - 1]]
+  sequence_ [gridAttach grid1 field 1 i 2 1 | (field, i) <- zip combos [0..n - 1]]
 
   -- containerRemove grid1 (combos !! 0)
   -- readsaddy <- buttonNewWithLabel ("Готово" :: Text)
@@ -197,7 +197,7 @@ startGUI = do
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
 
   ready <- buttonNewWithLabel ("Готово" :: Text)
-  gridAttach grid1 ready 1 (n + 1) 1 1
+  gridAttach grid1 ready 2 (n + 1) 1 1
 
   -- cal <- calendarNew
   -- _ <- onDaySelectedDoubleClick cal $ do

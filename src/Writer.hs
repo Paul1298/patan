@@ -67,10 +67,14 @@ writeText1 out ( numRep
                : org
                : dep
                : as) = do
-  appendRTFStringOrPara out [Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]]
-  appendRTFStringOrPara out [Paragraph QCenter [RTFString Roman dateRep]]
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold (head text1), RTFString Roman (org ++ "; " ++ dep ++ ".")]]
-  appendRTFStringOrPara out [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip (tail text1) (medRec : fio : as)] -- q & a
+  let (orgT : medRecT : ts) = text1
+  appendRTFStringOrPara out $ [
+                                -- Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]
+                                Paragraph QCenter [RTFString Roman dateRep]
+                              , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (org ++ "; " ++ dep ++ ".")]
+                              , Paragraph QLeft [RTFString Bold (medRecT ++ printf "%05d" (read medRec :: Integer))]
+                              , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (org ++ "; " ++ dep ++ ".")]
+                              ] ++ [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip ts (fio : as)]
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"
