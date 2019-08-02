@@ -133,6 +133,8 @@ signals entries ecompls combos ready window = do
       Just i -> foo entries i >> return ()
       _      -> return ()
 
+  comboBoxSetActive (combos !! 2) 0
+
   -- Готово
   _ <- ready `on` buttonActivated $ do
     out <- initRTF
@@ -180,7 +182,6 @@ startGUI = do
   sequence_ [comboBoxSetEntryTextColumn combo textColumn | combo <- combos ] -- set which column should be used
   sequence_ [gridAttach grid1 field 1 i 2 1 | (field, i) <- zip combos [0..n - 1]]
 
-  -- containerRemove grid1 (combos !! 0)
   -- readsaddy <- buttonNewWithLabel ("Готово" :: Text)
   -- gridAttach grid1 (readsaddy) 1 0 1 1
 
@@ -199,6 +200,9 @@ startGUI = do
   ready <- buttonNewWithLabel ("Готово" :: Text)
   gridAttach grid1 ready 2 (n + 1) 1 1
 
+  -- nextBut <- buttonNewWithLabel ("Патологоанатомическое вскрытие" :: Text)
+  -- gridAttach grid1 nextBut 2 (n + 1) 1 1
+
   -- cal <- calendarNew
   -- _ <- onDaySelectedDoubleClick cal $ do
   --   (y, m, d) <- calendarGetDate cal
@@ -210,8 +214,8 @@ startGUI = do
   containerAdd window grid1
   fillings entries
 
-  signals entries ecompls combos ready window -- TODO add cbs
 
+  signals entries ecompls combos ready window -- TODO add cbs
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
   widgetShowAll window

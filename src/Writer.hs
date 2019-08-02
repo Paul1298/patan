@@ -5,6 +5,14 @@ import           Text.Printf (printf)
 
 import           Text
 
+initRTF :: IO Handle
+initRTF = do
+  te <- mkTextEncoding "CP1251"
+  out <- openFile pathFile WriteMode
+  hSetEncoding out te
+  startRTF out
+  return out
+
 data Format = Bold | Roman
 
 instance Show Format where
@@ -22,10 +30,10 @@ instance Show RTFString where
 data Quadding = QLeft | QCenter | QRight | QJustify
 
 instance Show Quadding where
-  show QLeft    = "\\ql "
-  show QCenter  = "\\qc "
-  show QRight   = "\\qr "
-  show QJustify = "\\qj "
+  show QLeft    = "\\ql"
+  show QCenter  = "\\qc"
+  show QRight   = "\\qr"
+  show QJustify = "\\qj"
 
 data Paragraph = Paragraph { alignment :: Quadding
                            , contents  :: [RTFString]
@@ -48,16 +56,44 @@ defsize = 10
 heading :: String
 heading = "{\\rtf1\\ansi\\ansicpg1251\\deff0\\fs" ++ show (defsize * 2) ++ "{\\fonttbl {\\f0 Times New Roman;}}"
 
-initRTF :: IO Handle
-initRTF = do
-  te <- mkTextEncoding "CP1251"
-  out <- openFile pathFile WriteMode
-  hSetEncoding out te
-  startRTF out
-  return out
+pageSize :: String
+pageSize = "\\paperw11909\\paperh16837\\margl1138\\margr850\\margt562\\margb562"
 
 startRTF :: Handle -> IO ()
-startRTF out = hPutStrLn out heading
+startRTF out = do
+  hPutStrLn out heading
+  hPutStrLn out pageSize
+
+  -- \trowd
+  -- \cellx6221
+  -- \cellx6566
+  -- \cellx9922
+  -- \cell
+  -- \cell
+  -- \cell
+  -- \row
+  --
+  -- \trowd
+  -- \cellx6221
+  -- \cellx6566
+  -- \cellx9922
+  -- Областное бюджетное учреждение здравоохранения
+  -- «Курская городская клиническая больница скорой медицинской помощи»
+  -- \intbl\cell
+  -- \cell
+  -- Медицинская документация
+  -- Учетная форма № 013/у\intbl\cell
+  -- \row
+  --
+  -- \trowd
+  -- \cellx6221
+  -- \cellx6566
+  -- \cellx9922
+  -- \cell
+  -- \cell
+  -- Утверждена приказом Минздрава России от 6 июня 2013 г. № 354н \intbl\cell
+  -- \row
+
 
 writeText1 :: Handle -> [String] -> IO ()
 writeText1 out ( numRep
@@ -69,11 +105,10 @@ writeText1 out ( numRep
                : as) = do
   let (orgT : medRecT : ts) = text1
   appendRTFStringOrPara out $ [
-                                -- Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]
-                                Paragraph QCenter [RTFString Roman dateRep]
+                                Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]
+                              , Paragraph QCenter [RTFString Roman dateRep]
                               , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (org ++ "; " ++ dep ++ ".")]
                               , Paragraph QLeft [RTFString Bold (medRecT ++ printf "%05d" (read medRec :: Integer))]
-                              , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (org ++ "; " ++ dep ++ ".")]
                               ] ++ [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip ts (fio : as)]
 
 endRTF :: Handle -> IO ()
