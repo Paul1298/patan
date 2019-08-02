@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      CommonGUI
       DefCombo
       GUI
       Labels
@@ -43,7 +44,7 @@ library
       base >=4.7 && <5
     , bytestring
     -- , containers
-    -- , formatting
+    , glib
     , gtk2hs-buildtools
     , gtk3
     , lens

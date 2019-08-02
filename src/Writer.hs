@@ -110,6 +110,12 @@ writeText1 out ( numRep
                               , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (org ++ "; " ++ dep ++ ".")]
                               , Paragraph QLeft [RTFString Bold (medRecT ++ printf "%05d" (read medRec :: Integer))]
                               ] ++ [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip ts (fio : as)]
+  hPutStrLn out "\\line"
+
+writeText2 :: Handle -> [String] -> IO ()
+writeText2 out as = do
+  appendRTFStringOrPara out $ Paragraph QCenter [RTFString Bold header2]
+                            : [Paragraph QLeft [RTFString Bold q, RTFString Roman a] | (q, a) <- zip text2 as]
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}"
