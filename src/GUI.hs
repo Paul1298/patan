@@ -18,8 +18,8 @@ startGUI = do
   (grid1, nextBut, entries1) <- initGrid 1 labels1 initDef1 "Макроскопическое исследование"
   (grid2, ready, entries2)   <- initGrid 2 labels2 initDef2 "Готово"
 
-  -- containerAdd window grid1
-  containerAdd window =<< test
+  containerAdd window grid1
+  -- containerAdd window =<< test
   widgetShowAll window
 
   _ <- nextBut `on` buttonActivated $ do
