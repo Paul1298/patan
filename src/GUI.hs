@@ -20,18 +20,9 @@ startGUI = do
   (grid1, entries1) <- initGrid n1 labels1 initDef1
   sign1sect grid1 entries1
 
-  butt1_2 <- buttonNewWithLabel "Клинические данные"
+  butt1_2 <- buttonNewWithLabel "Макроскопическое исследование"
   butt <- buttonNew
   gridAttach grid1 butt1_2 1 n1 1 1
-
-  en <- entryNew
-  c <- comboBoxNew
-  -- let a = [(castToWidget en), (castToWidget c)]
-  box <- hBoxNew False 0
-  boxPackStart box en PackGrow 0
-  boxPackEnd box butt PackNatural 0
-  gridAttach grid1 box 0 n1 1 1
-
 
   let n2 = length labels2
   grid2 <- gridNew
@@ -43,14 +34,13 @@ startGUI = do
   sequence_ [initGrid n2 lab (return def) >>= (\(g, _) -> containerAdd ex g) | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
   sequence_ [gridAttach grid2 e 0 i 1 1 | (e, i) <- zip exps [0..n2 - 1]] --attach them
 
-  butt2_1 <- buttonNewWithLabel "Макроскопическое исследование"
+  butt2_1 <- buttonNewWithLabel "Клинические данные"
   butt2_3 <- buttonNewWithLabel "Готово"
   gridAttach grid2 butt2_1 0 n2 1 1
   gridAttach grid2 butt2_3 1 n2 1 1
 
-  containerGetChildren (exps !! 0) >>=  widgetGetName . last >>= putStrLn
-  sp <- spinButtonNewWithRange 0 90 0.1
-  gridAttach grid2 sp 0 (n2 + 1) 1 1
+  -- sp <- spinButtonNewWithRange 0 90 0.1
+  -- gridAttach grid2 sp 0 (n2 + 1) 1 1
 
   sw <- scrolledWindowNew Nothing Nothing
   containerAdd sw grid1

@@ -4,8 +4,9 @@ module Fillings where
 
 import           Data.Char       (isDigit)
 import           Data.IORef
-import           Data.Text       (Text, drop, length, take, unpack)
+import           Data.Text       (Text, drop, empty, length, take, unpack)
 import           Graphics.UI.Gtk
+import           Text.Printf
 
 import           Prelude         hiding (drop, length, take)
 
@@ -13,10 +14,11 @@ import           Labels
 
 fillDates :: [Entry] -> IO ()
 fillDates entries = do
-  mapM_ fill entries
+  mapM_ pattern entries
+  mapM_ addCalendar entries
   where
-    fill :: Entry -> IO ()
-    fill entry = do
+    pattern :: Entry -> IO ()
+    pattern entry = do
       let def = "__.__.____" :: Text
       let n = length def
 
@@ -86,6 +88,22 @@ fillDates entries = do
         signalUnblock idD
         stopDeleteText idD
       writeIORef idDRef idD
+
+    addCalendar :: Entry -> IO ()
+    addCalendar entry = do
+      (Just box) <- widgetGetParent entry
+
+      cal <- calendarNew
+      _ <- onDaySelectedDoubleClick cal $ do
+        (y, m, d) <- calendarGetDate cal
+        let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (printf "%04d" y)
+        entrySetText entry date
+        return ()
+
+      exp <- expanderNew empty
+      containerAdd exp cal
+
+      boxPackEnd (castToHBox box) exp PackGrow 0
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do

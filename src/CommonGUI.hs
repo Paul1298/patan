@@ -14,8 +14,9 @@ getEntry w = do
     ("GtkComboBox" :: String) -> do
                             Just e <- binGetChild (castToComboBox w)
                             return $ castToEntry e
-    otherwise            -> do
-                            return $ castToEntry w
+    ("GtkHBox" :: String)      -> do
+                            let e = head <$> containerGetChildren (castToContainer w)
+                            castToEntry <$> e
 
 
 
@@ -48,8 +49,12 @@ initGrid n labelsText initdefs = do
                         c <- comboBoxNewWithModelAndEntry store
                         comboBoxSetEntryTextColumn c textColumn
                         return $ castToWidget c
-                      else
-                        castToWidget <$> entryNew | store <- stores ]
+                      else do
+                        box <- hBoxNew False 0
+                        en <- entryNew
+                        boxPackStart box en PackGrow 0
+                        -- widgetGetName box >>= putStrLn
+                        return $ castToWidget box | store <- stores ]
   sequence_ [gridAttach grid c 1 i 1 1 | (c, i) <- zip combos [0..n - 1]]
   -- widgetGetName (combos !! 0) >>= putStrLn
 

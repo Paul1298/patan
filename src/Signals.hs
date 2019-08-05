@@ -9,14 +9,6 @@ import           Labels
 import           Writer
 import           Xman
 
--- cal <- calendarNew
--- _ <- onDaySelectedDoubleClick cal $ do
---   (y, m, d) <- calendarGetDate cal
---   let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (printf "%04d" y)
---   entrySetText (entries !! dateRepLabNum) date
---   return ()
--- gridAttach grid1 cal 0 (n + 1) 1 1
-
 foo :: [Entry] -> TreeIter -> IO Bool
 foo entries (TreeIter _ i _ _) = do
   -- putStrLn $ show (i + 2)
