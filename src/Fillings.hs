@@ -96,7 +96,7 @@ fillDates entries = do
       cal <- calendarNew
       _ <- onDaySelectedDoubleClick cal $ do
         (y, m, d) <- calendarGetDate cal
-        let date = (printf "%02d" d) ++ "." ++ (printf "%02d" m) ++ "." ++ (printf "%04d" y)
+        let date = (printf "%02d" d) ++ "." ++ (printf "%02d" (m + 1)) ++ "." ++ (printf "%04d" y)
         entrySetText entry date
         return ()
 
