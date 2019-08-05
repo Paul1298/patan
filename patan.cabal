@@ -29,11 +29,13 @@ library
   exposed-modules:
       CommonGUI
       DefCombo
+      Fillings
       GUI
       Labels
       Template
       Text
       Writer
+      Signals
       Xman
   other-modules:
       Paths_patan
