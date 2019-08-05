@@ -50,7 +50,7 @@ startGUI = do
   containerAdd window sw
   widgetShowAll window
 
-  signSectChange sw grid1 butt1_2 grid2 butt2_1 butt2_3
+  signSectChange sw [grid1, grid2] [butt1_2, butt2_1, butt2_3] [entries1]
 
   -- windowMaximize window
   _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
