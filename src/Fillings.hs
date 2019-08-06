@@ -102,8 +102,9 @@ fillDates entries = do
 
       exp <- expanderNew empty
       containerAdd exp cal
-
-      boxPackEnd (castToHBox box) exp PackGrow 0
+      b <- checkButtonNewWithLabel ("Календарь" :: Text)
+      expanderSetLabelWidget exp b
+      boxPackStart (castToHBox box) exp PackNatural 0
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do

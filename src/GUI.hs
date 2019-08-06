@@ -13,15 +13,14 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle         := "ПаТаН"
-             , windowDefaultWidth  := 800
-             , windowDefaultHeight := 800
+             , windowDefaultWidth  := 820
+             , windowDefaultHeight := 1080
              ]
   let n1 = length labels1
   (grid1, entries1) <- initGrid n1 labels1 initDef1
   sign1sect grid1 entries1
 
   butt1_2 <- buttonNewWithLabel "Макроскопическое исследование"
-  butt <- buttonNew
   gridAttach grid1 butt1_2 1 n1 1 1
 
   let n2 = length labels2
@@ -30,6 +29,9 @@ startGUI = do
   -- widgetSetHAlign grid2 AlignCenter
   exps <- sequence $ replicate n2 (expanderNew "")
   sequence_ [buttonNewWithLabel l >>= expanderSetLabelWidget e | (e, l) <- zip exps labels2]
+  -- b <- expanderGetLabelWidget (exps !! 0)
+  -- buttonSetAlignment (castToButton b) (0.5, 0.0)
+  -- expanderGetLabelWidget (exps !! 0) >>= buttonGetAlignment . castToButton >>= putStrLn . show
   def2 <- defInner2
   sequence_ [initGrid n2 lab (return def) >>= (\(g, _) -> containerAdd ex g) | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
   sequence_ [gridAttach grid2 e 0 i 1 1 | (e, i) <- zip exps [0..n2 - 1]] --attach them

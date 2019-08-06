@@ -25,6 +25,7 @@ initGrid n labelsText initdefs = do
   grid <- gridNew
   -- gridSetRowHomogeneous grid True -- rows same height
   gridSetColumnHomogeneous grid True
+  gridSetRowSpacing grid 2
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labelsText] -- init labels
@@ -52,7 +53,7 @@ initGrid n labelsText initdefs = do
                       else do
                         box <- hBoxNew False 0
                         en <- entryNew
-                        boxPackStart box en PackGrow 0
+                        boxPackEnd box en PackGrow 0
                         -- widgetGetName box >>= putStrLn
                         return $ castToWidget box | store <- stores ]
   sequence_ [gridAttach grid c 1 i 1 1 | (c, i) <- zip combos [0..n - 1]]
