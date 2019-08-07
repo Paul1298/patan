@@ -96,13 +96,14 @@ startRTF out = do
 
 
 writeText1 :: Handle -> [String] -> IO ()
-writeText1 out ( numRep
+writeText1 out fs@( numRep
                : dateRep
                : medRec
                : fio
                : org
                : dep
                : as) = do
+  -- appendRTFStringOrPara out [Paragraph QLeft [RTFString Roman f] | f <- fs]
   let (orgT : medRecT : ts) = text1
   appendRTFStringOrPara out $ [
                                 Paragraph QCenter [RTFString Bold (header1 ++ (printf "%03d" (read numRep :: Integer)) ++ ".")]

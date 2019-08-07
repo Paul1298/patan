@@ -12,6 +12,20 @@ import           Data.Time.Clock            (addUTCTime)
 import           Data.Time.Clock.POSIX      (posixSecondsToUTCTime)
 import           Data.Time.Format           (defaultTimeLocale, formatTime)
 
+getMKB :: Int -> IO [Text]
+getMKB col = do
+  bs <- L.readFile "mkb10.xlsx"
+  let value r = case help of
+                  Just (CellText t) -> t
+                  _                 -> ""
+                  where
+                    help = toXlsx bs ^? ixSheet "МКБ-10"
+                           . ixCell (r, col) . cellValue . _Just
+  return $ takeWhile (\t -> t /= "") [value r | r <- [5..100]]
+
+diagnosX :: IO [Text]
+diagnosX = getMKB 2
+
 getColumn :: Int -> IO [Text]
 getColumn col = do
   bs <- L.readFile "Летальность.xlsx"
@@ -22,7 +36,7 @@ getColumn col = do
                   where
                     help = toXlsx bs ^? ixSheet "Лист1"
                            . ixCell (r, col) . cellValue . _Just
-  return $ [value r | r <- [2..4]] -- TODO ? sort
+  return $ takeWhile (\t -> t /= "") [value r | r <- [2..]] -- TODO ? sort
 
 fioX, numberX, deptX :: IO [Text]
 fioX = getColumn 2
@@ -34,13 +48,16 @@ getAll row = do
   bs <- L.readFile "Летальность.xlsx"
   let value c = case help of
                   Just (CellText t)   -> return t
-                  Just (CellDouble d) -> do
-                    let doubleToUTCTime = posixSecondsToUTCTime . realToFrac
-                    let u = addUTCTime (-2209157400) (doubleToUTCTime $ (d * 86400)) -- because UTC from 1970, but Excel from 1900
-                    let s = formatTime defaultTimeLocale "%m.%d.%_Y" u -- our format
-                    return $ pack s
+                  Just (CellDouble d) ->
+                    if (c == 9 || c == 17)
+                    then do
+                      let doubleToUTCTime = posixSecondsToUTCTime . realToFrac
+                      let u = addUTCTime (-2209157400) (doubleToUTCTime $ (d * 86400)) -- because UTC from 1970, but Excel from 1900
+                      let s = formatTime defaultTimeLocale "%m.%d.%_Y" u -- our format
+                      return $ pack s
+                    else return $ txtd d
                   _                   -> return ""
                   where
                     help = toXlsx bs ^? ixSheet "Лист1"
                            . ixCell (row, c) . cellValue . _Just
-  sequence [value c | c <- [2, 3, 7, 9]]
+  sequence [value c | c <- [2, 3, 7, 4, 9, 17]]

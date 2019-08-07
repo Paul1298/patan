@@ -2,9 +2,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module CommonGUI where
 
-import           Data.Text       (Text)
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Text              (Text)
 import           Graphics.UI.Gtk
-import           Prelude         hiding (drop, length, take)
+import           Prelude                hiding (drop, length, take)
 
 getEntry :: WidgetClass w => w -> IO Entry
 getEntry w = do
@@ -18,7 +19,18 @@ getEntry w = do
                             let e = head <$> containerGetChildren (castToContainer w)
                             castToEntry <$> e
 
+-- foc
 
+colorOnFocus :: IO (Maybe Widget) -> Entry -> IO ()
+colorOnFocus mw en = do
+  Just w <- mw
+  _ <- en `on` focusInEvent $ liftIO $ do
+    widgetModifyBg w StateNormal (Color 0 34000 0)
+    return False
+  _ <- en `on` focusOutEvent $ liftIO $ do
+    widgetRestoreBg w StateNormal
+    return False
+  return ()
 
 initGrid :: Int -> [Text] -> IO [[Text]] -> IO (Grid, [Entry])
 initGrid n labelsText initdefs = do
@@ -26,10 +38,20 @@ initGrid n labelsText initdefs = do
   -- gridSetRowHomogeneous grid True -- rows same height
   gridSetColumnHomogeneous grid True
   gridSetRowSpacing grid 2
+  gridSetColumnSpacing grid 1
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labelsText] -- init labels
-  sequence_ [gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
+  -- labels <- sequence [frameNew | l <- labelsText] -- init labels
+  -- let t = labels !! 0
+  -- miscSetPadding t >>= putStrLn . show
+  -- widgetModifyBg t StateNormal (Color 0 34000 0)
+  -- -- widgetGetSizeRequest t >>= putStrLn . show
+  -- q <- labelNew (Just ("" :: Text))
+  -- -- frameSetLabelWidget t q
+  -- -- containerAdd t q
+  -- widgetModifyBg q StateNormal (Color 34000 0 0)
+  sequence_ [miscSetAlignment l 0 0.5 >> miscSetPadding l 100 0 >> gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
   -- sequence_ [labelSetSingleLineMode l False | l <- labels] -- sets the desired width in character
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
@@ -55,7 +77,7 @@ initGrid n labelsText initdefs = do
                         boxPackEnd box en PackGrow 0
                         -- widgetGetName box >>= putStrLn
                         return $ castToWidget box | store <- stores ]
-  sequence_ [gridAttach grid c 1 i 1 1 | (c, i) <- zip combos [0..n - 1]]
+  sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
   -- widgetGetName (combos !! 0) >>= putStrLn
 
   -- entries
@@ -69,5 +91,7 @@ initGrid n labelsText initdefs = do
 
   -- sequence_ [entryCompletionSetMinimumKeyLength ec 0 | ec <- ecompls]
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
+
+  sequence_ [colorOnFocus (gridGetChildAt grid 0 i) en | (en, i) <- zip entries [0..n - 1]]
 
   return (grid, entries)

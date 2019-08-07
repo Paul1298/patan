@@ -6,14 +6,16 @@ import           Data.Text (Text, unpack)
 labels1 :: [Text]
 labels1 = [
             "№ протокола"
-          , "Дата протокола"
+          , "Дата составления протокола"
           , "Медицинская карта №"
           , "Фамилия, имя, отчество"
           , "Медицинская организация"
           , "Отделение"
           , "Пол"
           , "Дата рождения"
+          , "Полных лет"
           , "Дата смерти"
+          , "Проведено койко-дней"
           , "Место жительства"
           , "Местность"
           , "Семейное положение"
@@ -22,10 +24,10 @@ labels1 = [
           , "Дата поступления"
           , "Доставлен в медицинскую организацию"
           , "ФИО лечащего врача"
-          , "Леч. врач (зав. отделением)\nприсутствовал на вскрытии?\n"
+          , "Леч. врач (зав. отделением)\nприсутствовал на вскрытии?"
           , "Дата вскрытия"
           , "Основные клинические данные"
-          , "Заключительный клинический диагноз"
+          , "код по МКБ-Х"
           , "Основное заболевание"
           , "Осложнения основного заболевания"
           , "Сопутствующие заболевания"
@@ -43,10 +45,11 @@ search s =
   let (Just i) = findIndex (\x -> (unpack s) `isSubsequenceOf` (unpack x)) labels1
   in i
 
-medRecLabNum, fioLabNum, sexLabNum :: Int
+medRecLabNum, fioLabNum, sexLabNum, ageLabNum :: Int
 medRecLabNum = search "Медицинская карта №"
 fioLabNum    = search "Фамилия, имя, отчество"
 sexLabNum    = search "Пол"
+ageLabNum    = search "Полных лет"
 
 dateRepLabNum,  dateBirthLabNum, dateDeathLabNum, dateRecLabNum, datePsyLabNum :: Int
 dateRepLabNum   = search "Дата протокола"

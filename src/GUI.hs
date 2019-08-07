@@ -18,36 +18,38 @@ startGUI = do
              ]
   let n1 = length labels1
   (grid1, entries1) <- initGrid n1 labels1 initDef1
-  sign1sect n1 grid1 entries1
-
-  butt1_2 <- buttonNewWithLabel "Макроскопическое исследование"
-  gridAttach grid1 butt1_2 1 n1 1 1
+  sign1sect grid1 entries1
 
   let n2 = length labels2
   grid2 <- gridNew
+  gridSetColumnHomogeneous grid2 True
 
   -- widgetSetHAlign grid2 AlignCenter
   exps <- sequence $ replicate n2 (expanderNew "")
-  sequence_ [buttonNewWithLabel l >>= expanderSetLabelWidget e | (e, l) <- zip exps labels2]
+  sequence_ [do
+            b <- buttonNewWithLabel l
+            widgetSetSizeRequest b 300 5
+            -- set b [ widgetHExpandSet := True ]
+            -- b `on` focusInEvent $ tryEvent $ do
+            --   (width, height) <- eventSize
+            --   putStrLn (show width ++ " x " ++ show height)
+            --   return False
+            expanderSetLabelWidget e b | (e, l) <- zip exps labels2]
   -- b <- expanderGetLabelWidget (exps !! 0)
   -- buttonSetAlignment (castToButton b) (0.5, 0.0)
   -- expanderGetLabelWidget (exps !! 0) >>= buttonGetAlignment . castToButton >>= putStrLn . show
   def2 <- defInner2
-  sequence_ [initGrid n2 lab (return def) >>= (\(g, _) -> containerAdd ex g) | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
-  sequence_ [gridAttach grid2 e 0 i 1 1 | (e, i) <- zip exps [0..n2 - 1]] --attach them
+  sequence_ [initGrid (length lab) lab (return def) >>= (\(g, _) -> containerAdd ex g) | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
+  sequence_ [gridAttach grid2 e 0 i 2 1 | (e, i) <- zip exps [0..n2 - 1]] --attach them
 
-  butt2_1 <- buttonNewWithLabel "Клинические данные"
-  butt2_3 <- buttonNewWithLabel "Готово"
-  gridAttach grid2 butt2_1 0 n2 1 1
-  gridAttach grid2 butt2_3 1 n2 1 1
 
-  -- sp <- spinButtonNewWithRange 0 90 0.1
-  -- gridAttach grid2 sp 0 (n2 + 1) 1 1
+  note <- notebookNew
+  notebookAppendPage note grid1 "Клинические данные"
 
   sw <- scrolledWindowNew Nothing Nothing
-  containerAdd sw grid1
-  containerAdd window sw
-  signSectChange sw [grid1, grid2] [butt1_2, butt2_1, butt2_3] [entries1]
+  containerAdd sw grid2
+  notebookAppendPage note sw "Макроскопическое исследование"
+  containerAdd window note
 
   widgetShowAll window
 

@@ -2,15 +2,37 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Fillings where
 
-import           Data.Char       (isDigit)
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Char              (isDigit)
 import           Data.IORef
-import           Data.Text       (Text, drop, empty, length, take, unpack)
+import           Data.Text              (Text, drop, empty, length, take,
+                                         unpack)
 import           Graphics.UI.Gtk
 import           Text.Printf
 
-import           Prelude         hiding (drop, length, take)
+import           Prelude                hiding (drop, length, take)
 
 import           Labels
+
+onlyInteger :: [Entry] -> IO ()
+onlyInteger entries = do
+  mapM_ only entries
+  where
+    only :: Entry -> IO ()
+    only entry = do
+      idIRef <- newIORef undefined
+      idI <- entry `on` insertText $ \(str :: Text) pos -> do
+        idI <- readIORef idIRef
+        signalBlock idI
+        pos' <- newIORef pos
+        if (all isDigit $ unpack str)
+        then editableInsertText entry str pos >>= writeIORef pos'
+        else return ()
+
+        signalUnblock idI
+        stopInsertText idI
+        readIORef pos'
+      writeIORef idIRef idI
 
 fillDates :: [Entry] -> IO ()
 fillDates entries = do
@@ -29,13 +51,10 @@ fillDates entries = do
 
       idIRef <- newIORef undefined
       idI <- entry `on` insertText $ \(str :: Text) pos -> do
-        -- putStrLn $ readIORef flag
         idI <- readIORef idIRef
         signalBlock idI
-        -- (entryGetText entry :: IO String) >>= length
         pos' <- newIORef pos
         flag <- readIORef editWrite
-        -- putStrLn $ show f
         if flag
         then
           if (all (\x -> isDigit x || x == '.') $ unpack str)
@@ -52,7 +71,6 @@ fillDates entries = do
                 writeIORef editRead True
               else do
                 p <- editableInsertText entry str pos
-                -- putStrLn ((unpack str) ++ " on " ++ show pos)
                 writeIORef pos' p
                 writeIORef editRead False
                 editableDeleteText entry p (p + length str)
@@ -67,13 +85,10 @@ fillDates entries = do
 
       idDRef <- newIORef undefined
       idD <- entry `on` deleteText $ \startPos endPos -> do
-        -- len <- liftM length (entryGetText entry :: IO String)
         idD <- readIORef idDRef
         signalBlock idD
-        -- putStrLn (show startPos ++ " -- " ++ show endPos)
         editableDeleteText entry startPos endPos
         let tmp = if (endPos < 0) then n else endPos
-        -- entryGetText entry >>= putStrLn
         flag <- readIORef editRead
         if flag
         then
@@ -100,11 +115,17 @@ fillDates entries = do
         entrySetText entry date
         return ()
 
-      exp <- expanderNew empty
-      containerAdd exp cal
-      b <- checkButtonNewWithLabel ("Календарь" :: Text)
-      expanderSetLabelWidget exp b
-      boxPackStart (castToHBox box) exp PackNatural 0
+
+      expa <- expanderNew ("Календарь" :: Text)
+      widgetSetSizeRequest expa 160 10
+      containerSetResizeMode expa ResizeQueue
+      containerAdd expa cal
+      onActivate expa $ do
+        widgetGrabFocus entry
+      afterActivate expa $ do
+        putStrLn "SDF"
+      --   widgetSetState entry StateFocused
+      boxPackStart (castToHBox box) expa PackNatural 0
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do
@@ -114,6 +135,10 @@ fillings1 entries = do
             , entries !! dateRecLabNum
             , entries !! datePsyLabNum
             ]
+  onlyInteger [ entries !! 0
+              , entries !! medRecLabNum
+              , entries !! ageLabNum
+              ]
   entrySetText (entries !! 0) ("1" :: Text)
   entrySetText (entries !! 4) ("Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»" :: Text)
   entrySetText (entries !! 20) ("Указаны в посмертном клиническом эпикризе в истории болезни." :: Text)
