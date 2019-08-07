@@ -27,8 +27,7 @@ bar :: Int -> String -> String -> Grid -> [Entry] -> IO ()
 bar i fst snd grid entries = do
   box <- hBoxNew True 2
   h <- radioButtonNew
-  f <- radioButtonNewWithLabel fst
-  radioButtonSetGroup f h
+  f <- radioButtonNewWithLabelFromWidget h fst
   f `on` toggled $ entrySetText (entries !! i) fst
   s <- radioButtonNewWithLabelFromWidget f snd
   s `on` toggled $ entrySetText (entries !! i) snd
@@ -43,13 +42,12 @@ bar i fst snd grid entries = do
 colorOnFocus :: Int -> IO (Maybe Widget) -> Entry -> IO ()
 colorOnFocus i mw en = do
   Just w <- mw
-  bgWas <- newIORef undefined
+  widgetGetName w >>= putStrLn
   en `on` focusInEvent $ liftIO $ do
-    widgetGetStyle w >>= (flip styleGetBackground) StateNormal >>= writeIORef bgWas
-    widgetModifyBg w StateNormal (Color 30000 123 125)
+    widgetModifyBg w StateNormal (Color 0 34000 0)
     return False
-  en `on` focusOutEvent $ do
-    liftIO $ readIORef bgWas >>= widgetModifyBg w StateNormal
+  en `on` focusOutEvent $ liftIO $ do
+    widgetRestoreBg w StateNormal
     return False
   return ()
 

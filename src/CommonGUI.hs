@@ -29,7 +29,6 @@ initGrid n labelsText initdefs = do
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labelsText] -- init labels
-  sequence_ [miscSetAlignment l 0 0 | l <- labels] -- left alignment labels
   sequence_ [gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
   -- sequence_ [labelSetSingleLineMode l False | l <- labels] -- sets the desired width in character
   widgetSetCanFocus (labels !! 0) True
