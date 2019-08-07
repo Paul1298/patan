@@ -43,11 +43,13 @@ bar i fst snd grid entries = do
 colorOnFocus :: Int -> IO (Maybe Widget) -> Entry -> IO ()
 colorOnFocus i mw en = do
   Just w <- mw
-  en `on` focusInEvent $ do
-    liftIO $ widgetModifyBg w StateNormal (Color 30000 123 125)
+  bgWas <- newIORef undefined
+  en `on` focusInEvent $ liftIO $ do
+    widgetGetStyle w >>= (flip styleGetBackground) StateNormal >>= writeIORef bgWas
+    widgetModifyBg w StateNormal (Color 30000 123 125)
     return False
   en `on` focusOutEvent $ do
-    liftIO $ widgetModifyBg w StateNormal (Color 13621 13621 13621)
+    liftIO $ readIORef bgWas >>= widgetModifyBg w StateNormal
     return False
   return ()
 
@@ -70,7 +72,6 @@ sign1sect n1 grid entries = do
 
   comboBoxSetActive medRecCB 0
 
-  -- TODO optimize?
   sequence_ [colorOnFocus i (gridGetChildAt grid 0 i) en | (en, i) <- zip entries [0..n1 - 1]]
 
 signSectChange :: ScrolledWindow -> [Grid] -> [Button] -> [[Entry]] -> IO ()
