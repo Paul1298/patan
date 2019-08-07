@@ -40,8 +40,19 @@ bar i fst snd grid entries = do
   gridAttach grid box 1 i 1 1
   widgetShowAll grid
 
-sign1sect :: Grid -> [Entry] -> IO ()
-sign1sect grid entries = do
+colorOnFocus :: Int -> IO (Maybe Widget) -> Entry -> IO ()
+colorOnFocus i mw en = do
+  Just w <- mw
+  en `on` focusInEvent $ do
+    liftIO $ widgetModifyBg w StateNormal (Color 30000 123 125)
+    return False
+  en `on` focusOutEvent $ do
+    liftIO $ widgetModifyBg w StateNormal (Color 13621 13621 13621)
+    return False
+  return ()
+
+sign1sect :: Int -> Grid -> [Entry] -> IO ()
+sign1sect n1 grid entries = do
   bar sexLabNum "Мужской" "Женский" grid entries
   bar 17 "Да" "Нет" grid entries
 
@@ -59,16 +70,8 @@ sign1sect grid entries = do
 
   comboBoxSetActive medRecCB 0
 
-  Just w <- gridGetChildAt grid 0 0
-  let en = (entries !! 0)
-  tmp <- newIORef undefined
-  en `on` focusInEvent $ do
-    liftIO $ widgetModifyBg w StateNormal (Color 30000 123 125)
-    return False
-  en `on` focusOutEvent $ do
-    liftIO $ widgetModifyBg w StateNormal (Color 0 100 0)
-    return False
-  return ()
+  -- TODO optimize?
+  sequence_ [colorOnFocus i (gridGetChildAt grid 0 i) en | (en, i) <- zip entries [0..n1 - 1]]
 
 signSectChange :: ScrolledWindow -> [Grid] -> [Button] -> [[Entry]] -> IO ()
 signSectChange sw [grid1, grid2] [butt1_2, butt2_1, butt2_3] [entries1] = do

@@ -18,7 +18,7 @@ startGUI = do
              ]
   let n1 = length labels1
   (grid1, entries1) <- initGrid n1 labels1 initDef1
-  sign1sect grid1 entries1
+  sign1sect n1 grid1 entries1
 
   butt1_2 <- buttonNewWithLabel "Макроскопическое исследование"
   gridAttach grid1 butt1_2 1 n1 1 1
