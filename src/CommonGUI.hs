@@ -9,7 +9,7 @@ import           Prelude                hiding (drop, length, take)
 
 getEntry :: WidgetClass w => w -> IO Entry
 getEntry w = do
-  -- TODO
+  -- TODO по-нормальному
   name <- widgetGetName w
   case name of
     ("GtkComboBox" :: String) -> do
@@ -53,9 +53,9 @@ initGrid n labelsText initdefs = do
   -- widgetModifyBg q StateNormal (Color 34000 0 0)
   sequence_ [do
               labelSetEllipsize l EllipsizeEnd
-              labelSetMaxWidthChars l 100
+              labelSetMaxWidthChars l 140
               miscSetAlignment l 0 0.5
-              miscSetPadding l 30 0
+              miscSetPadding l 20 0
               gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
   -- sequence_ [labelSetSingleLineMode l False | l <- labels] -- sets the desired width in character
   widgetSetCanFocus (labels !! 0) True

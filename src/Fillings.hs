@@ -103,16 +103,6 @@ fillDates entries = do
         stopDeleteText idD
       writeIORef idDRef idD
 
-    labelBox :: FilePath -> String -> IO HBox
-    labelBox fn txt = do
-      box   <- hBoxNew False 0
-      set box [ containerBorderWidth := 2 ]
-      image <- imageNewFromFile fn
-      label <- labelNew (Just txt)
-      boxPackStart box image PackNatural 3
-      boxPackStart box label PackNatural 3
-      return box
-
     addCalendar :: Entry -> IO ()
     addCalendar entry = do
 
@@ -130,15 +120,17 @@ fillDates entries = do
       vbox `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
 
       but    <- buttonNew
-      calBox <- labelBox "download.jpeg" "Календарь       "
-      containerAdd but calBox
+      image <- imageNewFromFile "download.jpeg"
+      containerAdd but image
+      widgetSetSizeRequest but 160 10
+
 
       but `on` buttonActivated $ do
         wis <- get cal widgetVisible
         if wis
         then widgetHide cal
         else widgetShow cal
-      boxPackStart vbox but PackNatural 0
+      boxPackStart vbox but PackGrow 0
       boxPackStart vbox cal PackNatural 0
       boxPackEnd box vbox PackNatural 0
 

@@ -1,6 +1,6 @@
 module Signals where
 
-import           Control.Monad.IO.Class
+import           Control.Monad.IO.Class (liftIO)
 import           Graphics.UI.Gtk
 import           System.IO
 import           System.Process
@@ -73,19 +73,9 @@ sign1sect grid entries = do
 
   comboBoxSetActive medRecCB 0
 
-signSectChange :: ScrolledWindow -> [Grid] -> [Button] -> [[Entry]] -> IO ()
-signSectChange sw [grid1, grid2] [butt1_2, butt2_1, butt2_3] [entries1] = do
-  _ <- butt1_2 `on` buttonActivated $ do
-    containerRemove sw grid1
-    containerAdd sw grid2
-    widgetShowAll sw
-
-  _ <- butt2_1 `on` buttonActivated $ do
-    containerRemove sw grid2
-    containerAdd sw grid1
-    widgetShowAll sw
-
-  _ <- butt2_3 `on` buttonActivated $ do
+signSectChange :: Button -> [Entry] -> IO ()
+signSectChange ready entries1 = do
+  _ <- ready `on` buttonActivated $ do
     out <- initRTF
     mapM entryGetText entries1 >>= writeText1 out
     endRTF out
@@ -94,4 +84,4 @@ signSectChange sw [grid1, grid2] [butt1_2, butt2_1, butt2_3] [entries1] = do
     -- _ <- runCommand ("start " ++ pathFile) --win
     return ()
   return ()
-signSectChange _ _ _ _ = return ()
+signSectChange _ _ = return ()

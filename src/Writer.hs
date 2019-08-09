@@ -96,7 +96,8 @@ startRTF out = do
 
 
 writeText1 :: Handle -> [String] -> IO ()
-writeText1 out fs@( numRep
+writeText1 out fs@(
+                 numRep
                : dateRep
                : medRec
                : fio

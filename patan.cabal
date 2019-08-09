@@ -32,7 +32,6 @@ library
       Fillings
       GUI
       Labels
-      Template
       Text
       Writer
       Signals
