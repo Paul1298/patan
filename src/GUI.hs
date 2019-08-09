@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module GUI where
 
 import           Control.Monad.IO.Class
@@ -12,9 +13,10 @@ import           Signals
 startGUI :: IO ()
 startGUI = do
   window <- windowNew
-  set window [ windowTitle         := "ПаТаН"
-             , windowDefaultWidth  := 820
-             , windowDefaultHeight := 1080
+  set window [ windowTitle          := "ПаТаН"
+             , windowDefaultWidth   := 820
+             , windowDefaultHeight  := 1080
+             , containerBorderWidth := 10
              ]
   let n1 = length labels1
   (grid1, entries1) <- initGrid n1 labels1 initDef1
@@ -22,13 +24,14 @@ startGUI = do
 
   let n2 = length labels2
   grid2 <- gridNew
-  gridSetColumnHomogeneous grid2 True
+  gridSetRowSpacing grid2 2
+  -- gridSetColumnHomogeneous grid2 True
 
   -- widgetSetHAlign grid2 AlignCenter
   exps <- sequence $ replicate n2 (expanderNew "")
   sequence_ [do
             b <- buttonNewWithLabel l
-            widgetSetSizeRequest b 300 5
+            widgetSetSizeRequest b 300 10
             -- set b [ widgetHExpandSet := True ]
             -- b `on` focusInEvent $ tryEvent $ do
             --   (width, height) <- eventSize
@@ -49,10 +52,41 @@ startGUI = do
   sw <- scrolledWindowNew Nothing Nothing
   containerAdd sw grid2
   notebookAppendPage note sw "Макроскопическое исследование"
-  containerAdd window note
+
+  ready <- buttonNewWithLabel "Сохранить документ"
+  -- toolbar
+
+  grid <- gridNew
+  -- gridAttach grid space 0 1 0 1
+  menubar <- menuBarNew
+  fileMenu <- menuNew
+
+  fileMi <- menuItemNewWithMnemonic "_File"
+  newMi <- imageMenuItemNewFromStock stockPageSetup
+
+  menuItemSetSubmenu fileMi fileMenu
+  menuShellAppend fileMenu newMi
+
+  menuShellAppend menubar fileMi
+
+  -- gridAttach grid menubar 0 0 1 1
+  gridAttach grid note 0 1 1 1
+  buf <- textBufferNew Nothing
+  tv <- textViewNewWithBuffer buf
+
+  tv `on` insertAtCursor $ \(str :: String) -> do
+    textBufferGetEndIter buf >>= textIterGetOffset >>= putStrLn . show
+  -- textBufferGetIterAtLine
+  -- textIterGetLineOffset
+  -- entrySetMaxLength en 20
+  gridAttach grid tv 0 0 1 1
+  containerAdd window grid
 
   widgetShowAll window
 
   -- windowMaximize window
   _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
+  -- _ <- window `on` focusOutEvent $ do -- TODO add close calendar
+  --   liftIO $ putStrLn "sdf"
+  --   return False
   return ()

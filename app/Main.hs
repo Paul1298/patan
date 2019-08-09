@@ -6,5 +6,5 @@ main :: IO ()
 main = do
   _ <- initGUI
   startGUI
-  -- (rcGetThemeDir :: IO String) >>= putStrLn
+  -- testGUI
   mainGUI

@@ -42,9 +42,8 @@ fillDates entries = do
     pattern :: Entry -> IO ()
     pattern entry = do
       let def = "__.__.____" :: Text
-      let n = length def
-
       entrySetText entry def
+      let n = length def
 
       editWrite <- newIORef True
       editRead <- newIORef True
@@ -104,9 +103,18 @@ fillDates entries = do
         stopDeleteText idD
       writeIORef idDRef idD
 
+    labelBox :: FilePath -> String -> IO HBox
+    labelBox fn txt = do
+      box   <- hBoxNew False 0
+      set box [ containerBorderWidth := 2 ]
+      image <- imageNewFromFile fn
+      label <- labelNew (Just txt)
+      boxPackStart box image PackNatural 3
+      boxPackStart box label PackNatural 3
+      return box
+
     addCalendar :: Entry -> IO ()
     addCalendar entry = do
-      (Just box) <- widgetGetParent entry
 
       cal <- calendarNew
       _ <- onDaySelectedDoubleClick cal $ do
@@ -115,17 +123,25 @@ fillDates entries = do
         entrySetText entry date
         return ()
 
+      (Just box) <- (fmap castToHBox <$> widgetGetParent entry)
+      vbox <- vBoxNew False 1
+      containerSetResizeMode vbox ResizeQueue
+      vbox `on` showSignal $ widgetHide cal
+      vbox `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
 
-      expa <- expanderNew ("Календарь" :: Text)
-      widgetSetSizeRequest expa 160 10
-      containerSetResizeMode expa ResizeQueue
-      containerAdd expa cal
-      onActivate expa $ do
-        widgetGrabFocus entry
-      afterActivate expa $ do
-        putStrLn "SDF"
-      --   widgetSetState entry StateFocused
-      boxPackStart (castToHBox box) expa PackNatural 0
+      but    <- buttonNew
+      calBox <- labelBox "download.jpeg" "Календарь       "
+      containerAdd but calBox
+
+      but `on` buttonActivated $ do
+        wis <- get cal widgetVisible
+        if wis
+        then widgetHide cal
+        else widgetShow cal
+      boxPackStart vbox but PackNatural 0
+      boxPackStart vbox cal PackNatural 0
+      boxPackEnd box vbox PackNatural 0
+
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do
@@ -135,7 +151,8 @@ fillings1 entries = do
             , entries !! dateRecLabNum
             , entries !! datePsyLabNum
             ]
-  onlyInteger [ entries !! 0
+  -- (Just win) <- (widgetGetParent (head entries) >>= fmap widgetGetParent)
+  onlyInteger [ head entries
               , entries !! medRecLabNum
               , entries !! ageLabNum
               ]

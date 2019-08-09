@@ -19,17 +19,17 @@ getEntry w = do
                             let e = head <$> containerGetChildren (castToContainer w)
                             castToEntry <$> e
 
--- foc
+focLabel :: Widget -> IO ()
+focLabel w = widgetModifyBg w StateNormal (Color 0 34000 0)
+unfocLabel :: Widget -> IO ()
+unfocLabel w = widgetRestoreBg w StateNormal
+
 
 colorOnFocus :: IO (Maybe Widget) -> Entry -> IO ()
 colorOnFocus mw en = do
   Just w <- mw
-  _ <- en `on` focusInEvent $ liftIO $ do
-    widgetModifyBg w StateNormal (Color 0 34000 0)
-    return False
-  _ <- en `on` focusOutEvent $ liftIO $ do
-    widgetRestoreBg w StateNormal
-    return False
+  _ <- en `on` focusInEvent $ liftIO $ focLabel w >> return False
+  _ <- en `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
   return ()
 
 initGrid :: Int -> [Text] -> IO [[Text]] -> IO (Grid, [Entry])
@@ -51,7 +51,12 @@ initGrid n labelsText initdefs = do
   -- -- frameSetLabelWidget t q
   -- -- containerAdd t q
   -- widgetModifyBg q StateNormal (Color 34000 0 0)
-  sequence_ [miscSetAlignment l 0 0.5 >> miscSetPadding l 100 0 >> gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
+  sequence_ [do
+              labelSetEllipsize l EllipsizeEnd
+              labelSetMaxWidthChars l 100
+              miscSetAlignment l 0 0.5
+              miscSetPadding l 30 0
+              gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
   -- sequence_ [labelSetSingleLineMode l False | l <- labels] -- sets the desired width in character
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
@@ -74,7 +79,7 @@ initGrid n labelsText initdefs = do
                       else do
                         box <- hBoxNew False 0
                         en <- entryNew
-                        boxPackEnd box en PackGrow 0
+                        boxPackStart box en PackGrow 0
                         -- widgetGetName box >>= putStrLn
                         return $ castToWidget box | store <- stores ]
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]

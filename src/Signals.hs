@@ -1,9 +1,11 @@
 module Signals where
 
+import           Control.Monad.IO.Class
 import           Graphics.UI.Gtk
 import           System.IO
 import           System.Process
 
+import           CommonGUI
 import           Fillings
 import           Labels
 import           Writer
@@ -23,16 +25,24 @@ foo entries (TreeIter _ i _ _) = do
   entrySetText (entries !! datePsyLabNum) datePsy
   return False
 
+radioSign :: RadioButton -> Entry -> Widget -> IO ()
+radioSign b e l = do
+  _ <- b `on` toggled $ focLabel l >> (entrySetText e =<< (buttonGetLabel b :: IO String))
+  _ <- b `on` focusOutEvent $ liftIO $ unfocLabel l >> return False
+  return ()
+
 bar :: Int -> String -> String -> Grid -> [Entry] -> IO ()
 bar i fstS sndS grid entries = do
-  box <- hBoxNew True 2
+  box <- hBoxNew True 0
   h <- radioButtonNew
   f <- radioButtonNewWithLabelFromWidget h fstS
-  _ <- f `on` toggled $ entrySetText (entries !! i) fstS
+  (Just lab) <- gridGetChildAt grid 0 i
   s <- radioButtonNewWithLabelFromWidget f sndS
-  _ <- s `on` toggled $ entrySetText (entries !! i) sndS
-  boxPackStart box f PackGrow 2
-  boxPackStart box s PackGrow 2
+  let e = entries !! i
+  radioSign f e lab
+  radioSign s e lab
+  boxPackStart box f PackGrow 20
+  boxPackStart box s PackGrow 20
 
   (Just was) <- gridGetChildAt grid 1 i
   containerRemove grid was
