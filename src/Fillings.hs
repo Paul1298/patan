@@ -143,7 +143,6 @@ fillings1 entries = do
             , entries !! dateRecLabNum
             , entries !! datePsyLabNum
             ]
-  -- (Just win) <- (widgetGetParent (head entries) >>= fmap widgetGetParent)
   onlyInteger [ head entries
               , entries !! medRecLabNum
               , entries !! ageLabNum

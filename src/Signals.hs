@@ -80,8 +80,8 @@ signSectChange ready entries1 = do
     mapM entryGetText entries1 >>= writeText1 out
     endRTF out
     hClose out
-    _ <- createProcess (proc "loffice" [pathFile]) --linux
-    -- _ <- runCommand ("start " ++ pathFile) --win
+    -- _ <- createProcess (proc "loffice" [pathFile]) --linux
+    _ <- runCommand ("start " ++ pathFile) --win
     return ()
   return ()
 signSectChange _ _ = return ()
