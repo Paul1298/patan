@@ -5,8 +5,7 @@ module Fillings where
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Char              (isDigit)
 import           Data.IORef
-import           Data.Text              (Text, drop, empty, length, take,
-                                         unpack)
+import           Data.Text              (Text, drop, length, take, unpack)
 import           Graphics.UI.Gtk
 import           Text.Printf
 
@@ -41,7 +40,7 @@ fillDates entries = do
   where
     pattern :: Entry -> IO ()
     pattern entry = do
-      let def = "__.__.____" :: Text
+      let def = "__.__.____ г." :: Text
       entrySetText entry def
       let n = length def
 
@@ -58,8 +57,8 @@ fillDates entries = do
         then
           if (all (\x -> isDigit x || x == '.') $ unpack str)
           then
-            if (pos >= n)
-            then writeIORef pos' n
+            if (pos >= 10)
+            then writeIORef pos' 10
             else
               if (pos == 2) || (pos == 5)
               then do
@@ -107,17 +106,20 @@ fillDates entries = do
     addCalendar entry = do
 
       cal <- calendarNew
-      _ <- onDaySelectedDoubleClick cal $ do
+
+      _ <- onDaySelected cal $ do
         (y, m, d) <- calendarGetDate cal
         let date = (printf "%02d" d) ++ "." ++ (printf "%02d" (m + 1)) ++ "." ++ (printf "%04d" y)
         entrySetText entry date
-        return ()
+
+      (_, _, today) <- calendarGetDate cal
+      putStrLn $ show today
+      calendarSelectDay cal today
 
       (Just box) <- (fmap castToHBox <$> widgetGetParent entry)
       vbox <- vBoxNew False 1
       containerSetResizeMode vbox ResizeQueue
-      vbox `on` showSignal $ widgetHide cal
-      vbox `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
+      _ <- vbox `on` showSignal $ widgetHide cal
 
       but    <- buttonNew
       image <- imageNewFromFile "download.jpeg"
@@ -125,7 +127,9 @@ fillDates entries = do
       widgetSetSizeRequest but 160 10
 
 
-      but `on` buttonActivated $ do
+      _ <- but `on` buttonActivated $ do
+        widgetGrabFocus cal
+        -- TODO add color label
         wis <- get cal widgetVisible
         if wis
         then widgetHide cal
@@ -134,6 +138,8 @@ fillDates entries = do
       boxPackStart vbox cal PackNatural 0
       boxPackEnd box vbox PackNatural 0
 
+      _ <- cal `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
+      return ()
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do
@@ -149,7 +155,7 @@ fillings1 entries = do
               ]
   entrySetText (entries !! 0) ("1" :: Text)
   entrySetText (entries !! 4) ("Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»" :: Text)
-  entrySetText (entries !! 20) ("Указаны в посмертном клиническом эпикризе в истории болезни." :: Text)
+  entrySetText (entries !! 21) ("Указаны в посмертном клиническом эпикризе в истории болезни." :: Text)
 
   -- nb <- buttonNewWithLabel ("1" :: Text)
   -- containerAdd (entries !! dateRepLabNum) nb

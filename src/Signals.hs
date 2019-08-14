@@ -2,7 +2,8 @@ module Signals where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Graphics.UI.Gtk
-import           System.IO
+import           System.Info
+-- import           System.IO
 import           System.Process
 
 import           CommonGUI
@@ -56,9 +57,11 @@ sign1sect grid entries = do
   fillings1 entries
 
   -- sp <- spinButtonNewWithRange 0 90 1
-  -- Just tmp <- widgetGetParent $ entries !! ageLabNum
+  -- Just tmp <- widgetGetParent $ entries !! 23
   -- containerRemove grid tmp
-  -- gridAttach grid sp 1 ageLabNum 1 1
+  -- tv <- frameNew
+  -- containerAdd tv =<< textViewNew
+  -- gridAttach grid tv 1 23 1 1
 
   (Just tmp) <- gridGetChildAt grid 1 2
   let medRecCB = castToComboBox tmp
@@ -73,15 +76,15 @@ sign1sect grid entries = do
 
   comboBoxSetActive medRecCB 0
 
-signSectChange :: Button -> [Entry] -> IO ()
-signSectChange ready entries1 = do
+signSectChange :: Button -> [Entry] -> [[Entry]] -> IO ()
+signSectChange ready entries1 entries2 = do
   _ <- ready `on` buttonActivated $ do
     out <- initRTF
     mapM entryGetText entries1 >>= writeText1 out
+    mapM (mapM entryGetText) entries2 >>= writeText2 out
     endRTF out
-    hClose out
-    -- _ <- createProcess (proc "loffice" [pathFile]) --linux
-    _ <- runCommand ("start " ++ pathFile) --win
-    return ()
+    case os of
+      "linux"   -> createProcess (proc "loffice" [pathFile]) >> return ()
+      "windows" -> runCommand ("start " ++ pathFile) >> return ()
+      _         -> undefined
   return ()
-signSectChange _ _ = return ()

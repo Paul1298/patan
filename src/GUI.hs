@@ -34,7 +34,6 @@ startGUI = do
 
   ready <- buttonNewWithLabel "Сохранить документ"
   set ready [ widgetHExpand := True ]
-  signSectChange ready entries1
 
   _ <- window `on` configureEvent $ do
     (width, _) <- eventSize
@@ -42,9 +41,10 @@ startGUI = do
     return False
 
   def2 <- defInner2
-  sequence_ [initGrid (length lab) lab (return def) >>= (\(g, _) -> containerAdd ex g)
+  entries2 <- sequence
+            [ initGrid (length lab) lab (return def) >>= (\(g, e) -> containerAdd ex g >> return e)
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
-
+  signSectChange ready entries1 entries2
   grid2 <- gridNew
   containerSetBorderWidth grid2 2
   gridSetRowSpacing grid2 2
@@ -52,35 +52,24 @@ startGUI = do
 
 
   note <- notebookNew
-  -- sw1 <- scrolledWindowNew Nothing Nothing
-  -- containerAdd sw1 grid1
-  notebookAppendPage note grid1 "Клинические данные"
+  sw1 <- scrolledWindowNew Nothing Nothing
+  containerAdd sw1 grid1
+  _ <- notebookAppendPage note sw1 "Клинические данные"
 
   sw2 <- scrolledWindowNew Nothing Nothing
   containerAdd sw2 grid2
-  notebookAppendPage note sw2 "Макроскопическое исследование"
-
+  _ <- notebookAppendPage note sw2 "Макроскопическое исследование"
 
   grid <- gridNew
   gridAttach grid ready 0 0 1 1
   gridAttach grid note 0 1 1 1
-
-  buf <- textBufferNew Nothing
-  tv <- textViewNewWithBuffer buf
-
-  tv `on` insertAtCursor $ \(str :: String) -> do
-    textBufferGetEndIter buf >>= textIterGetOffset >>= putStrLn . show
-  -- textBufferGetIterAtLine
-  -- textIterGetLineOffset
-  -- entrySetMaxLength en 20
-  -- gridAttach grid tv 0 0 1 1
   containerAdd window grid
 
-  widgetShowAll window
-
   windowMaximize window
+  widgetShowAll window
+  scrolledWindowSetMinContentHeight sw1 =<< widgetGetAllocatedHeight grid1
+
   _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
-  -- _ <- window `on` focusOutEvent $ do -- TODO add close calendar
   --   liftIO $ putStrLn "sdf"
   --   return False
   return ()

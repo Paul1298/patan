@@ -9,15 +9,16 @@ import           Prelude                hiding (drop, length, take)
 
 getEntry :: WidgetClass w => w -> IO Entry
 getEntry w = do
-  -- TODO по-нормальному
+  -- TODO по-нормальному сделать
   name <- widgetGetName w
   case name of
     ("GtkComboBox" :: String) -> do
                             Just e <- binGetChild (castToComboBox w)
                             return $ castToEntry e
-    ("GtkHBox" :: String)      -> do
+    ("GtkHBox" :: String)     -> do
                             let e = head <$> containerGetChildren (castToContainer w)
                             castToEntry <$> e
+    _                         -> undefined
 
 focLabel :: Widget -> IO ()
 focLabel w = widgetModifyBg w StateNormal (Color 0 34000 0)
@@ -42,22 +43,12 @@ initGrid n labelsText initdefs = do
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labelsText] -- init labels
-  -- labels <- sequence [frameNew | l <- labelsText] -- init labels
-  -- let t = labels !! 0
-  -- miscSetPadding t >>= putStrLn . show
-  -- widgetModifyBg t StateNormal (Color 0 34000 0)
-  -- -- widgetGetSizeRequest t >>= putStrLn . show
-  -- q <- labelNew (Just ("" :: Text))
-  -- -- frameSetLabelWidget t q
-  -- -- containerAdd t q
-  -- widgetModifyBg q StateNormal (Color 34000 0 0)
   sequence_ [do
               labelSetEllipsize l EllipsizeEnd
               labelSetMaxWidthChars l 140
               miscSetAlignment l 0 0.5
               miscSetPadding l 20 0
               gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
-  -- sequence_ [labelSetSingleLineMode l False | l <- labels] -- sets the desired width in character
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
 
