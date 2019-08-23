@@ -64,35 +64,39 @@ startRTF out = do
   hPutStrLn out heading
   hPutStrLn out pageSize
 
-  -- \trowd
-  -- \cellx6221
-  -- \cellx6566
-  -- \cellx9922
-  -- \cell
-  -- \cell
-  -- \cell
-  -- \row
-  --
-  -- \trowd
-  -- \cellx6221
-  -- \cellx6566
-  -- \cellx9922
-  -- Областное бюджетное учреждение здравоохранения
-  -- «Курская городская клиническая больница скорой медицинской помощи»
-  -- \intbl\cell
-  -- \cell
-  -- Медицинская документация
-  -- Учетная форма № 013/у\intbl\cell
-  -- \row
-  --
-  -- \trowd
-  -- \cellx6221
-  -- \cellx6566
-  -- \cellx9922
-  -- \cell
-  -- \cell
-  -- Утверждена приказом Минздрава России от 6 июня 2013 г. № 354н \intbl\cell
-  -- \row
+  -- \\\trowd\
+  -- \\\cellx6221\
+  -- \\\cellx6566\
+  -- \\\cellx9922\
+  -- \\\cell\
+  -- \\\cell\
+  -- \\\cell\
+  -- \\\row\n\
+
+
+writeHeaderTable :: Handle -> IO ()
+writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
+  "\\fs18\
+
+  \\\trowd\\trgaph58\
+  \\\cellx6221\
+  \\\cellx6566\
+  \\\cellx9922\
+  \{\\pard\\sl86\\b Областное бюджетное учреждение здравоохранения \\line\
+  \«Курская городская клиническая больница скорой медицинской помощи»\\par}\\intbl\\cell\
+  \\\cell\
+  \{\\pard\\sl86\\qc Медицинская документация\\line\
+  \Учетная форма № 013/у\\par}\\intbl\\cell\
+  \\\row\n\
+
+  \\\trowd\\trgaph58\
+  \\\cellx6221\
+  \\\cellx6566\
+  \\\cellx9922\
+  \Ул. Пирогова, 14. \\intbl\\cell\
+  \\\cell\
+  \\\sl86 Утверждена приказом Минздрава России от 6 июня 2013 г. № 354н \\intbl\\cell\
+  \\\row\n"]
 
 -- TODO search in Internet normal
 monthIntToString :: String -> String
@@ -137,15 +141,15 @@ writeText1 out (
   appendRTFStringOrPara out $ [
                                 Paragraph QCenter [RTFString Bold (header1 (read numRep :: Integer))]
                               , Paragraph QCenter [RTFString Roman upDateRep]
-                              , Paragraph QLeft [RTFString Bold orgT, RTFString Roman (printf "%s; %s." org dep)]
-                              , Paragraph QLeft [RTFString Bold (medRecT $ printf "%05d" (read medRec :: Integer))]
-                              , Paragraph QLeft [RTFString Bold fioT, RTFString Roman fio]
-                              , Paragraph QLeft [RTFString Bold sexT, RTFString Roman sex]
-                              , Paragraph QLeft [ RTFString Bold dateBirthT, RTFString Roman dateBirth
+                              , Paragraph QJustify [RTFString Bold orgT, RTFString Roman (printf "%s; %s." org dep)]
+                              , Paragraph QJustify [RTFString Bold (medRecT $ printf "%05d" (read medRec :: Integer))]
+                              , Paragraph QJustify [RTFString Bold fioT, RTFString Roman fio]
+                              , Paragraph QJustify [RTFString Bold sexT, RTFString Roman sex]
+                              , Paragraph QJustify [ RTFString Bold dateBirthT, RTFString Roman (dateBirth ++ ";")
                                                 , RTFString Bold ageT, RTFString Roman age]
-                              , Paragraph QLeft [ RTFString Bold dateDeathT, RTFString Roman dateDeath
+                              , Paragraph QJustify [ RTFString Bold dateDeathT, RTFString Roman dateDeath
                                                 , RTFString Bold bedDaysT, RTFString Roman bedDays]
-                              ] ++ [Paragraph QLeft $ case q of
+                              ] ++ [Paragraph QJustify $ case q of
                                                     Left l  -> [RTFString Bold l, RTFString Roman a]
                                                     Right r -> [RTFString Bold (r a)]| (q, a) <- zip qs as]
   hPutStrLn out "\\line"

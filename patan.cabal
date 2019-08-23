@@ -44,11 +44,10 @@ library
   build-depends:
       base >=4.7 && <5
     , bytestring
-    -- , containers
-    , glib
-    , gtk2hs-buildtools
+    , extra
     , gtk3
     , lens
+    , MissingH
     , process
     , text
     , time
@@ -64,13 +63,8 @@ executable patan-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
       base >=4.7 && <5
-    , bytestring
-    , gtk2hs-buildtools
     , gtk3
-    , lens
     , patan
-    , text
-    , xlsx
   default-language: Haskell2010
 
 test-suite patan-test

@@ -113,10 +113,9 @@ fillDates entries = do
         entrySetText entry date
 
       (_, _, today) <- calendarGetDate cal
-      putStrLn $ show today
       calendarSelectDay cal today
 
-      (Just box) <- (fmap castToHBox <$> widgetGetParent entry)
+      Just box <- fmap castToHBox <$> widgetGetParent entry
       vbox <- vBoxNew False 1
       containerSetResizeMode vbox ResizeQueue
       _ <- vbox `on` showSignal $ widgetHide cal
@@ -152,6 +151,7 @@ fillings1 entries = do
   onlyInteger [ head entries
               , entries !! medRecLabNum
               , entries !! ageLabNum
+              , entries !! 10
               ]
   entrySetText (entries !! 0) ("1" :: Text)
   entrySetText (entries !! 4) ("Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»" :: Text)

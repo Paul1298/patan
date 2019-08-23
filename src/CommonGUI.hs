@@ -2,20 +2,24 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module CommonGUI where
 
+import           Control.Monad.Extra    (whenJust)
 import           Control.Monad.IO.Class (liftIO)
+import           Data.Maybe             (catMaybes)
 import           Data.Text              (Text)
 import           Graphics.UI.Gtk
-import           Prelude                hiding (drop, length, take)
+import           Prelude                hiding (drop, length)
 
 getEntry :: WidgetClass w => w -> IO Entry
 getEntry w = do
   -- TODO по-нормальному сделать
   name <- widgetGetName w
   case name of
-    ("GtkComboBox" :: String) -> do
+    ("GtkComboBox" :: String) ->
+                            do
                             Just e <- binGetChild (castToComboBox w)
                             return $ castToEntry e
-    ("GtkHBox" :: String)     -> do
+    ("GtkHBox" :: String)     ->
+                            do
                             let e = head <$> containerGetChildren (castToContainer w)
                             castToEntry <$> e
     _                         -> undefined
@@ -33,13 +37,14 @@ colorOnFocus mw en = do
   _ <- en `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
   return ()
 
-initGrid :: Int -> [Text] -> IO [[Text]] -> IO (Grid, [Entry])
+initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry])
 initGrid n labelsText initdefs = do
   grid <- gridNew
   -- gridSetRowHomogeneous grid True -- rows same height
   gridSetColumnHomogeneous grid True
-  gridSetRowSpacing grid 2
+  gridSetRowSpacing grid 4
   gridSetColumnSpacing grid 1
+  -- set grid [ containerBorderWidth := 2 ]
 
   -- labels
   labels <- sequence [labelNew $ Just l | l <- labelsText] -- init labels
@@ -55,35 +60,46 @@ initGrid n labelsText initdefs = do
   let textColumn = makeColumnIdString 0
 
   -- entries with comboBox
-  defs <- initdefs
-  stores <- sequence [listStoreNew def | def <- defs]
-  sequence_ [customStoreSetColumn store textColumn id | store <- stores ] -- set the extraction function
+  defs <- initdefs --[Maybe [Text]]
+  stores <- sequence [case def of
+                        Just d  -> do
+                                   l <- listStoreNew d
+                                   return $ Just l
+                        Nothing -> return Nothing| def <- defs]
+  sequence_ [whenJust store $ \st -> customStoreSetColumn st textColumn id | store <- stores ] -- set the extraction function
 
   -- combos
-  combos <- sequence [do
-                      len <- listStoreGetSize store
-                      if (len /= 0)
-                      then do
-                        c <- comboBoxNewWithModelAndEntry store
-                        comboBoxSetEntryTextColumn c textColumn
-                        return $ castToWidget c
-                      else do
-                        box <- hBoxNew False 0
-                        en <- entryNew
-                        boxPackStart box en PackGrow 0
-                        -- widgetGetName box >>= putStrLn
-                        return $ castToWidget box | store <- stores ]
+  combos <- sequence
+    [case store of
+      Just st -> do
+                 len <- listStoreGetSize st
+                 if (len /= 0)
+                 then do
+                   c <- comboBoxNewWithModelAndEntry st
+                   comboBoxSetEntryTextColumn c textColumn
+                   return $ castToWidget c
+                 else do
+                   box <- hBoxNew False 0
+                   en <- entryNew
+                   boxPackStart box en PackGrow 0
+                   return $ castToWidget box
+      Nothing -> do
+                 tv <- frameNew
+                 containerAdd tv =<< textViewNew
+                 return $ castToWidget tv
+    | store <- stores]
+  -- putStrLn . show =<< (mapM widgetGetName combos :: IO [String])
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
   -- widgetGetName (combos !! 0) >>= putStrLn
 
   -- entries
-  entries <- mapM getEntry combos
+  entries <- mapM getEntry (take (n - 3) combos)
 
   -- entry-completion
   ecompls <- sequence $ replicate n entryCompletionNew
   sequence_ [set ec [ entryCompletionModel            := Just st
                     , entryCompletionMinimumKeyLength := 0
-                    , entryCompletionTextColumn       := textColumn] | (ec, st) <- zip ecompls stores]
+                    , entryCompletionTextColumn       := textColumn] | (ec, st) <- zip ecompls (catMaybes stores)]
 
   -- sequence_ [entryCompletionSetMinimumKeyLength ec 0 | ec <- ecompls]
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]

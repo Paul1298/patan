@@ -2,6 +2,7 @@
 module GUI where
 
 import           CommonGUI
+import           Control.Monad.Extra    (fromMaybeM)
 import           Control.Monad.IO.Class (liftIO)
 import           DefCombo
 import           Graphics.UI.Gtk
@@ -16,6 +17,9 @@ startGUI = do
              -- , windowDefaultHeight  := 1080
              , containerBorderWidth := 4
              ]
+  let n0 = length labels0
+
+
   let n1 = length labels1
   (grid1, entries1) <- initGrid n1 labels1 initDef1
   sign1sect grid1 entries1
@@ -44,7 +48,9 @@ startGUI = do
   entries2 <- sequence
             [ initGrid (length lab) lab (return def) >>= (\(g, e) -> containerAdd ex g >> return e)
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
-  signSectChange ready entries1 entries2
+
+  widgets1 <- sequence [fromMaybeM undefined $ gridGetChildAt grid1 1 i | i <- [0..n1 - 1]]
+  signSectChange ready widgets1 entries2
   grid2 <- gridNew
   containerSetBorderWidth grid2 2
   gridSetRowSpacing grid2 2
@@ -67,6 +73,14 @@ startGUI = do
 
   windowMaximize window
   widgetShowAll window
+  -- let tf i = do
+  --            tv <- frameNew
+  --            containerAdd tv =<< textViewNew
+  --            widgetSizeAllocate tv =<< (widgetGetAllocation $ entries1 !! (i - 1))
+  --            containerRemove grid1 =<< fromMaybeM undefined (widgetGetParent $ entries1 !! i)
+  --            gridAttach grid1 tv 1 i 1 1
+  --            widgetShowAll tv
+  -- mapM_ tf [23, 24, 25]
   scrolledWindowSetMinContentHeight sw1 =<< widgetGetAllocatedHeight grid1
 
   _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
