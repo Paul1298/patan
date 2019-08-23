@@ -2,7 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module CommonGUI where
 
-import           Control.Monad.Extra    (whenJust)
+import           Control.Monad          (filterM, join)
+import           Control.Monad.Extra    (fromMaybeM, whenJust)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe             (catMaybes)
 import           Data.Text              (Text)
@@ -30,11 +31,11 @@ unfocLabel :: Widget -> IO ()
 unfocLabel w = widgetRestoreBg w StateNormal
 
 
-colorOnFocus :: IO (Maybe Widget) -> Entry -> IO ()
-colorOnFocus mw en = do
-  Just w <- mw
-  _ <- en `on` focusInEvent $ liftIO $ focLabel w >> return False
-  _ <- en `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
+colorOnFocus :: IO Widget -> Widget -> IO ()
+colorOnFocus mw wid = do
+  w <- mw
+  _ <- wid `on` focusInEvent $ liftIO $ focLabel w >> return False
+  _ <- wid `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
   return ()
 
 initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry])
@@ -92,9 +93,9 @@ initGrid n labelsText initdefs = do
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
   -- widgetGetName (combos !! 0) >>= putStrLn
 
-  -- entries
-  entries <- mapM getEntry (take (n - 3) combos)
-
+  -- entries -- TODO
+  -- en <-
+  entries <- join $ mapM getEntry <$> (filterM (\x -> (/= "GtkFrame") <$> (widgetGetName x :: IO String)) combos)
   -- entry-completion
   ecompls <- sequence $ replicate n entryCompletionNew
   sequence_ [set ec [ entryCompletionModel            := Just st
@@ -104,6 +105,6 @@ initGrid n labelsText initdefs = do
   -- sequence_ [entryCompletionSetMinimumKeyLength ec 0 | ec <- ecompls]
   sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
 
-  sequence_ [colorOnFocus (gridGetChildAt grid 0 i) en | (en, i) <- zip entries [0..n - 1]]
+  sequence_ [colorOnFocus (fromMaybeM undefined $ gridGetChildAt grid 0 i) (castToWidget wid) | (wid, i) <- zip entries [0..n - 1]]
 
   return (grid, entries)

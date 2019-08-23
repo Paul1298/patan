@@ -104,7 +104,7 @@ signSectChange ready widgets1 entries2 = do
     out <- initRTF
     writeHeaderTable out
     mapM getText widgets1 >>= writeText1 out
-    -- mapM (mapM entryGetText) entries2 >>= writeText2 out
+    mapM (mapM entryGetText) entries2 >>= writeText2 out
     endRTF out
     case os of
       "linux"   -> createProcess (proc "loffice" [pathFile]) >> return ()

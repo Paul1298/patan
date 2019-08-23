@@ -81,7 +81,7 @@ startGUI = do
   --            gridAttach grid1 tv 1 i 1 1
   --            widgetShowAll tv
   -- mapM_ tf [23, 24, 25]
-  scrolledWindowSetMinContentHeight sw1 =<< widgetGetAllocatedHeight grid1
+  scrolledWindowSetMinContentHeight sw1 . (+10) =<< widgetGetAllocatedHeight grid1
 
   _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
   --   liftIO $ putStrLn "sdf"
