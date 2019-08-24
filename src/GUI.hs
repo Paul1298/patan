@@ -2,6 +2,7 @@
 module GUI where
 
 import           CommonGUI
+import           Control.Monad          (void)
 import           Control.Monad.Extra    (fromMaybeM)
 import           Control.Monad.IO.Class (liftIO)
 import           DefCombo
@@ -17,7 +18,7 @@ startGUI = do
              -- , windowDefaultHeight  := 1080
              , containerBorderWidth := 4
              ]
-  let n0 = length labels0
+  -- let n0 = length labels0
 
 
   let n1 = length labels1
@@ -39,7 +40,7 @@ startGUI = do
   ready <- buttonNewWithLabel "Сохранить документ"
   set ready [ widgetHExpand := True ]
 
-  _ <- window `on` configureEvent $ do
+  void $ window `on` configureEvent $ do
     (width, _) <- eventSize
     sequence_ [liftIO $ widgetSetSizeRequest b (width - 40) 10 | b <- buts]
     return False
@@ -60,11 +61,11 @@ startGUI = do
   note <- notebookNew
   sw1 <- scrolledWindowNew Nothing Nothing
   containerAdd sw1 grid1
-  _ <- notebookAppendPage note sw1 "Клинические данные"
+  void $ notebookAppendPage note sw1 "Клинические данные"
 
   sw2 <- scrolledWindowNew Nothing Nothing
   containerAdd sw2 grid2
-  _ <- notebookAppendPage note sw2 "Макроскопическое исследование"
+  void $ notebookAppendPage note sw2 "Макроскопическое исследование"
 
   grid <- gridNew
   gridAttach grid ready 0 0 1 1
@@ -83,7 +84,7 @@ startGUI = do
   -- mapM_ tf [23, 24, 25]
   scrolledWindowSetMinContentHeight sw1 . (+10) =<< widgetGetAllocatedHeight grid1
 
-  _ <- window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
+  void $ window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
   --   liftIO $ putStrLn "sdf"
   --   return False
   return ()

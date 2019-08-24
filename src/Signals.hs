@@ -1,5 +1,6 @@
 module Signals where
 
+import           Control.Monad          (void)
 import           Control.Monad.Extra    (findM, fromMaybeM, maybeM)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.List.Utils        (replace)
@@ -36,8 +37,8 @@ foo entries (TreeIter _ i _ _) = do
 
 radioSign :: RadioButton -> Entry -> Widget -> IO ()
 radioSign b e l = do
-  _ <- b `on` toggled $ focLabel l >> (entrySetText e =<< (buttonGetLabel b :: IO String))
-  _ <- b `on` focusOutEvent $ liftIO $ unfocLabel l >> return False
+  void $ b `on` toggled $ focLabel l >> (entrySetText e =<< (buttonGetLabel b :: IO String))
+  void $ b `on` focusOutEvent $ liftIO $ unfocLabel l >> return False
   return ()
 
 bar :: Int -> String -> String -> Grid -> [Entry] -> IO ()
@@ -68,15 +69,22 @@ sign1sect grid entries = do
   Just medRecCB <- fmap castToComboBox <$> gridGetChildAt grid 1 medRecLabNum
   medRecEC <- entryGetCompletion $ entries !! medRecLabNum
 
-  _ <- medRecCB `on` changed $ do
+  void $ medRecCB `on` changed $ do
     ti <- comboBoxGetActiveIter medRecCB
     case ti of
       Just i  -> foo entries i >> return ()
       Nothing -> return ()
-  _ <- medRecEC `on` matchSelected $ (\_ ti -> foo entries ti)
+  void $ medRecEC `on` matchSelected $ (\_ ti -> foo entries ti)
 
   comboBoxSetActive medRecCB 0
   -- (entryGetText (entries !! sexLabNum) :: IO String) >>= putStrLn
+
+  st <- listStoreNew =<< diagnosX
+  customStoreSetColumn st textColumn id
+  ec <- entryCompletionNew
+  set ec [ entryCompletionModel := Just st, entryCompletionMinimumKeyLength := 4, entryCompletionTextColumn := textColumn ]
+  entrySetCompletion (last entries) ec
+
 
 getText :: Widget -> IO String
 getText rcol = do
@@ -100,7 +108,7 @@ getText rcol = do
 
 signSectChange :: Button -> [Widget] -> [[Entry]] -> IO ()
 signSectChange ready widgets1 entries2 = do
-  _ <- ready `on` buttonActivated $ do
+  void $ ready `on` buttonActivated $ do
     out <- initRTF
     writeHeaderTable out
     mapM getText widgets1 >>= writeText1 out

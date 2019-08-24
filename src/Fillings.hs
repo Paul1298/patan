@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Fillings where
 
+import           Control.Monad          (void)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Char              (isDigit)
 import           Data.IORef
@@ -95,7 +96,7 @@ fillDates entries = do
           else do
             let substr = take (tmp - startPos) (drop startPos def)
             writeIORef editWrite False
-            _ <- editableInsertText entry substr startPos
+            void $ editableInsertText entry substr startPos
             writeIORef editWrite True
         else return ()
         signalUnblock idD
@@ -107,7 +108,7 @@ fillDates entries = do
 
       cal <- calendarNew
 
-      _ <- onDaySelected cal $ do
+      void $ onDaySelected cal $ do
         (y, m, d) <- calendarGetDate cal
         let date = (printf "%02d" d) ++ "." ++ (printf "%02d" (m + 1)) ++ "." ++ (printf "%04d" y)
         entrySetText entry date
@@ -118,15 +119,15 @@ fillDates entries = do
       Just box <- fmap castToHBox <$> widgetGetParent entry
       vbox <- vBoxNew False 1
       containerSetResizeMode vbox ResizeQueue
-      _ <- vbox `on` showSignal $ widgetHide cal
+      void $ vbox `on` showSignal $ widgetHide cal
 
-      but    <- buttonNew
+      but   <- buttonNew
       image <- imageNewFromFile "download.jpeg"
       containerAdd but image
       widgetSetSizeRequest but 160 10
 
 
-      _ <- but `on` buttonActivated $ do
+      void $ but `on` buttonActivated $ do
         widgetGrabFocus cal
         -- TODO add color label
         wis <- get cal widgetVisible
@@ -137,7 +138,7 @@ fillDates entries = do
       boxPackStart vbox cal PackNatural 0
       boxPackEnd box vbox PackNatural 0
 
-      _ <- cal `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
+      void $ cal `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
       return ()
 
 fillings1 :: [Entry] -> IO ()

@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module CommonGUI where
 
-import           Control.Monad          (filterM, join)
+import           Control.Monad          (filterM, join, void)
 import           Control.Monad.Extra    (fromMaybeM, whenJust)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe             (catMaybes)
@@ -34,9 +34,13 @@ unfocLabel w = widgetRestoreBg w StateNormal
 colorOnFocus :: IO Widget -> Widget -> IO ()
 colorOnFocus mw wid = do
   w <- mw
-  _ <- wid `on` focusInEvent $ liftIO $ focLabel w >> return False
-  _ <- wid `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
+  void $ wid `on` focusInEvent $ liftIO $ focLabel w >> return False
+  void $ wid `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
   return ()
+
+textColumn :: ColumnId row Text
+textColumn = makeColumnIdString 0
+
 
 initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry])
 initGrid n labelsText initdefs = do
@@ -57,8 +61,6 @@ initGrid n labelsText initdefs = do
               gridAttach grid l 0 i 1 1 | (l, i) <- zip labels [0..n - 1]] --attach them
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
-
-  let textColumn = makeColumnIdString 0
 
   -- entries with comboBox
   defs <- initdefs --[Maybe [Text]]
@@ -93,17 +95,19 @@ initGrid n labelsText initdefs = do
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
   -- widgetGetName (combos !! 0) >>= putStrLn
 
-  -- entries -- TODO
-  -- en <-
+  -- TODO
   entries <- join $ mapM getEntry <$> (filterM (\x -> (/= "GtkFrame") <$> (widgetGetName x :: IO String)) combos)
-  -- entry-completion
-  ecompls <- sequence $ replicate n entryCompletionNew
-  sequence_ [set ec [ entryCompletionModel            := Just st
-                    , entryCompletionMinimumKeyLength := 0
-                    , entryCompletionTextColumn       := textColumn] | (ec, st) <- zip ecompls (catMaybes stores)]
 
-  -- sequence_ [entryCompletionSetMinimumKeyLength ec 0 | ec <- ecompls]
-  sequence_ [entrySetCompletion e ec | (e, ec) <- zip entries ecompls]
+  -- entry-completion
+  sequence_ [do
+             len <- listStoreGetSize st
+             if (len /= 0)
+             then do
+               ec <- entryCompletionNew
+               set ec [ entryCompletionModel      := Just st
+                      , entryCompletionTextColumn := textColumn]
+               entrySetCompletion en ec
+             else return () | (en, st) <- zip entries (catMaybes stores)]
 
   sequence_ [colorOnFocus (fromMaybeM undefined $ gridGetChildAt grid 0 i) (castToWidget wid) | (wid, i) <- zip entries [0..n - 1]]
 

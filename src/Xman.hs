@@ -21,7 +21,7 @@ getMKB col = do
                   where
                     help = toXlsx bs ^? ixSheet "МКБ-10"
                            . ixCell (r, col) . cellValue . _Just
-  return $ takeWhile (\t -> t /= "") [value r | r <- [5..100]]
+  return $ takeWhile (\t -> t /= "") [value r | r <- [5..]]
 
 diagnosX :: IO [Text]
 diagnosX = getMKB 2
