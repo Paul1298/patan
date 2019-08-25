@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Fillings where
 
@@ -6,11 +5,8 @@ import           Control.Monad          (void)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Char              (isDigit)
 import           Data.IORef
-import           Data.Text              (Text, drop, length, take, unpack)
 import           Graphics.UI.Gtk
 import           Text.Printf
-
-import           Prelude                hiding (drop, length, take)
 
 import           Labels
 
@@ -21,11 +17,11 @@ onlyInteger entries = do
     only :: Entry -> IO ()
     only entry = do
       idIRef <- newIORef undefined
-      idI <- entry `on` insertText $ \(str :: Text) pos -> do
+      idI <- entry `on` insertText $ \(str :: String) pos -> do
         idI <- readIORef idIRef
         signalBlock idI
         pos' <- newIORef pos
-        if (all isDigit $ unpack str)
+        if (all isDigit str)
         then editableInsertText entry str pos >>= writeIORef pos'
         else return ()
 
@@ -41,7 +37,7 @@ fillDates entries = do
   where
     pattern :: Entry -> IO ()
     pattern entry = do
-      let def = "__.__.____ г." :: Text
+      let def = "__.__.____ г. __-__"
       entrySetText entry def
       let n = length def
 
@@ -49,37 +45,42 @@ fillDates entries = do
       editRead <- newIORef True
 
       idIRef <- newIORef undefined
-      idI <- entry `on` insertText $ \(str :: Text) pos -> do
-        idI <- readIORef idIRef
-        signalBlock idI
-        pos' <- newIORef pos
-        flag <- readIORef editWrite
-        if flag
+      idI <- entry `on` insertText $ \(str :: String) pos ->
+        if (length str < 1)
         then
-          if (all (\x -> isDigit x || x == '.') $ unpack str)
+          -- zipWith (\x -> editableInsertText entry x pos + i) str
+          undefined
+        else do
+          idI <- readIORef idIRef
+          signalBlock idI
+          pos' <- newIORef pos
+          flag <- readIORef editWrite
+          if flag
           then
-            if (pos >= 10)
-            then writeIORef pos' 10
-            else
-              if (pos == 2) || (pos == 5)
-              then do
-                p <- editableInsertText entry str (pos + 1)
-                writeIORef pos' p
-                writeIORef editRead False
-                editableDeleteText entry p (p + length str)
-                writeIORef editRead True
-              else do
-                p <- editableInsertText entry str pos
-                writeIORef pos' p
-                writeIORef editRead False
-                editableDeleteText entry p (p + length str)
-                writeIORef editRead True
-          else return ()
-        else editableInsertText entry str pos >>= writeIORef pos'
+            if (all (\x -> isDigit x || x == '.') str)
+            then
+              if (pos >= 10)
+              then writeIORef pos' pos
+              else
+                if (pos == 2) || (pos == 5)
+                then do
+                  p <- editableInsertText entry str (pos + 1)
+                  writeIORef pos' p
+                  writeIORef editRead False
+                  editableDeleteText entry p (p + length str)
+                  writeIORef editRead True
+                else do
+                  p <- editableInsertText entry str pos
+                  writeIORef pos' p
+                  writeIORef editRead False
+                  editableDeleteText entry p (p + length str)
+                  writeIORef editRead True
+            else return ()
+          else editableInsertText entry str pos >>= writeIORef pos'
 
-        signalUnblock idI
-        stopInsertText idI
-        readIORef pos'
+          signalUnblock idI
+          stopInsertText idI
+          readIORef pos'
       writeIORef idIRef idI
 
       idDRef <- newIORef undefined
@@ -154,9 +155,9 @@ fillings1 entries = do
               , entries !! ageLabNum
               , entries !! 10
               ]
-  entrySetText (entries !! 0) ("1" :: Text)
-  entrySetText (entries !! 4) ("Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»" :: Text)
-  entrySetText (entries !! 21) ("Указаны в посмертном клиническом эпикризе в истории болезни." :: Text)
+  entrySetText (entries !! 0) "1"
+  entrySetText (entries !! 4) "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
+  entrySetText (entries !! 21) "Указаны в посмертном клиническом эпикризе в истории болезни."
 
   -- nb <- buttonNewWithLabel ("1" :: Text)
   -- containerAdd (entries !! dateRepLabNum) nb

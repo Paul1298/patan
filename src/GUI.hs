@@ -14,9 +14,10 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
+             -- , windowAllowGrow      := False -- TODO расширение на винде
              -- , windowDefaultWidth   := 820
              -- , windowDefaultHeight  := 1080
-             , containerBorderWidth := 4
+             , containerBorderWidth := 8
              ]
   -- let n0 = length labels0
 
@@ -85,6 +86,4 @@ startGUI = do
   scrolledWindowSetMinContentHeight sw1 . (+10) =<< widgetGetAllocatedHeight grid1
 
   void $ window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
-  --   liftIO $ putStrLn "sdf"
-  --   return False
   return ()

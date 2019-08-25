@@ -116,6 +116,6 @@ signSectChange ready widgets1 entries2 = do
     endRTF out
     case os of
       "linux"   -> createProcess (proc "loffice" [pathFile]) >> return ()
-      "windows" -> runCommand ("start " ++ pathFile) >> return ()
+      "mingw32" -> runCommand ("start " ++ pathFile) >> return ()
       _         -> undefined
   return ()
