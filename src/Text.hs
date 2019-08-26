@@ -13,9 +13,9 @@ text1 = [
         , Left "3. Фамилия, имя, отчество умершего: "
         , Left "4. Пол: "
         , Left "5. Дата рождения: "
-        , Left "\\tab\\tabПолных лет – "
+        , Left "\\tab\\tab Полных лет – "
         , Left "6. Дата смерти: "
-        , Left "\\tab\\tabПроведено койко-дней – "
+        , Left "\\tab Проведено койко-дней – "
         , Left "7. Место жительства умершего: "
         , Left "8. Местность: "
         , Left "9. Семейное положение: "
@@ -52,7 +52,7 @@ text2 = [
         ]
 
 printfList_ :: PrintfType t => String -> [String] -> Int -> t
-printfList_ string list n | n == 0 = printf string (list !! 0)
+printfList_ string list n | n == 0    = printf string (list !! 0)
                           | otherwise = (printfList_ string list (n - 1)) (list !! n)
 
 printfList :: String -> [String] -> String

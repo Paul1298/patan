@@ -26,15 +26,12 @@ startGUI = do
   (grid1, entries1) <- initGrid n1 labels1 initDef1
   sign1sect grid1 entries1
 
-  -- gridSetColumnHomogeneous grid2 True
-  let n2 = length labels2
+  let n2 = length labels2 -- TODO delete using 0..
 
   exps <- sequence $ replicate n2 (expanderNew "")
 
   buts <- sequence [do
                       b <- buttonNewWithLabel l
-                      -- set b [ widgetHExpand := True ]
-                      -- set e [ widgetHExpand := True ]
                       expanderSetLabelWidget e b
                       return b | (e, l) <- zip exps labels2]
 

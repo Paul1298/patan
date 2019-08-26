@@ -64,29 +64,28 @@ startRTF out = do
   hPutStrLn out heading
   hPutStrLn out pageSize
 
-  -- \\\trowd\
-  -- \\\cellx6221\
-  -- \\\cellx6566\
-  -- \\\cellx9922\
-  -- \\\cell\
-  -- \\\cell\
-  -- \\\cell\
-  -- \\\row\n\
-
-
 writeHeaderTable :: Handle -> IO ()
 writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
   "\\fs18\
+
+  \\\trowd\
+  \\\cellx6221\
+  \\\cellx6566\
+  \\\cellx9922\
+  \\\cell\
+  \\\cell\
+  \\\cell\
+  \\\row\n\
 
   \\\trowd\\trgaph58\
   \\\cellx6221\
   \\\cellx6566\
   \\\cellx9922\
-  \{\\pard\\sl86\\b Областное бюджетное учреждение здравоохранения \\line\
-  \«Курская городская клиническая больница скорой медицинской помощи»\\par}\\intbl\\cell\
+  \{\\b Областное бюджетное учреждение здравоохранения \\line\
+  \«Курская городская клиническая больница скорой медицинской помощи»}\\intbl\\cell\
   \\\cell\
-  \{\\pard\\sl86\\qc Медицинская документация\\line\
-  \Учетная форма № 013/у\\par}\\intbl\\cell\
+  \{\\qc Медицинская документация\\line\
+  \Учетная форма № 013/у\\par }\\intbl\\cell\
   \\\row\n\
 
   \\\trowd\\trgaph58\
@@ -113,7 +112,7 @@ monthIntToString s = case s of
   "10" -> "октября "
   "11" -> "ноября "
   "12" -> "декабря "
-  _    -> undefined
+  _    -> "Нет такого месяца. Добавить ошибку" -- TODO
 
 
 writeText1 :: Handle -> [String] -> IO ()

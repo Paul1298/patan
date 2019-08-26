@@ -53,7 +53,7 @@ getAll row = do
                     then do
                       let doubleToUTCTime = posixSecondsToUTCTime . realToFrac
                       let u = addUTCTime (-2209157400) (doubleToUTCTime $ (d * 86400)) -- because UTC from 1970, but Excel from 1900
-                      let s = formatTime defaultTimeLocale "%m.%d.%_Y" u -- our format
+                      let s = formatTime defaultTimeLocale "%m%d%_Y" u -- our format
                       return $ pack s
                     else return $ txtd d
                   _                   -> return ""
