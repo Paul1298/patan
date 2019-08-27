@@ -66,7 +66,7 @@ startRTF out = do
 
 writeHeaderTable :: Handle -> IO ()
 writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
-  "\\fs18\
+  "\\fs18\\linex090\
 
   \\\trowd\
   \\\cellx6221\
@@ -129,7 +129,7 @@ writeText1 out (
                : dateDeath
                : bedDays
                : as) = do
-  -- appendRTFStringOrPara out [Paragraph QLeft [RTFString Roman f] | f <- fs]
+  -- appendRTFStringOrPara out [Paragraph QLeft [RTFString Roman t] | t <- test]
   -- let ft1 = map printf text1
   let (   Left orgT : Right medRecT : Left fioT : Left sexT
         : Left dateBirthT : Left ageT
@@ -157,7 +157,7 @@ writeText1 _ _ = return ()
 writeText2 :: Handle -> [[String]] -> IO ()
 writeText2 out as = do
   appendRTFStringOrPara out $ Paragraph QCenter [RTFString Bold header2]
-                            : [Paragraph QLeft [RTFString Bold q, RTFString Roman ("\\tab" ++ t a)] | (q, a, t) <- zip3 text2 as textInner2]
+                            : [Paragraph QJustify [RTFString Bold q, RTFString Roman ("\\tab " ++ t a)] | (q, a, t) <- zip3 text2 as textInner2]
 
 endRTF :: Handle -> IO ()
 endRTF out = hPutStr out "}" >> hClose out

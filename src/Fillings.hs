@@ -52,17 +52,18 @@ pattern entry def invis = do
       pos' <- newIORef pos
       flag <- readIORef editWrite
       if flag
-      then
-        if (all isDigit str)
-        then
-          if (pos >= n)
+      then if (all isDigit str)
+        then if (pos >= n)
           then writeIORef pos' pos
           else do
-            p <- editableInsertText entry str (nextPos pos $ dropWhile (/= pos) invis)
-            writeIORef pos' p
-            writeIORef editRead False
-            editableDeleteText entry p (p + ns)
-            writeIORef editRead True
+            let npos = nextPos pos $ dropWhile (/= pos) invis
+            if (npos >= n) then return ()
+            else do
+              p <- editableInsertText entry str npos
+              writeIORef pos' p
+              writeIORef editRead False
+              editableDeleteText entry p (p + ns)
+              writeIORef editRead True
         else return ()
       else editableInsertText entry str pos >>= writeIORef pos'
 
@@ -94,12 +95,11 @@ pattern entry def invis = do
   where
     nextPos :: Int -> [Int] -> Int
     nextPos pos []     = pos
-    nextPos _ [i]      = i + 1
-    nextPos _ (i : is) = if (head is == succ i) then nextPos 0 is else i + 1
+    nextPos _ [i]      = i + 1 -- TODO fix this in the end of str
+    nextPos _ (i : is) = if (head is == succ i) then nextPos undefined is else i + 1
 
 addCalendar :: Entry -> IO ()
 addCalendar entry = do
-
   cal <- calendarNew
 
   void $ onDaySelected cal $ do
@@ -119,7 +119,6 @@ addCalendar entry = do
   image <- imageNewFromFile "download.jpeg"
   containerAdd but image
   widgetSetSizeRequest but 160 10
-
 
   void $ but `on` buttonActivated $ do
     widgetGrabFocus cal
@@ -164,4 +163,20 @@ fillings1 entries = do
   entrySetText (entries !! 4) "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
   entrySetText (entries !! 21) "Указаны в посмертном клиническом эпикризе в истории болезни."
 
-  fillings2 :: [Entry] -> IO ()
+fillBody :: [Entry] -> IO ()
+fillBody ens =
+  sequence_ $ zipWith (\e s -> pattern e s [5..100]) ens ["    пола", "    см.", "    кг."]
+
+fillings2 :: [[Entry]] -> IO ()
+fillings2 (body : es) = do
+  fillBody body
+
+fillTV :: Widget -> [String] -> IO ()
+fillTV w sts = do
+  tb <- textViewGetBuffer . castToTextView . head
+        =<< containerGetChildren (castToContainer w)
+  textBufferSetText tb (foldl (\b a -> b ++ a ++ "- ,\n") "" sts)
+
+tmp :: [[Widget]] -> IO ()
+tmp ws = do
+  fillTV (last (ws !! 1)) ["диафрагма", "печень", "селезенка", "большой сальник", "желудок", "кишечник", "мочевой пузырь", "червеобразный отросток"]

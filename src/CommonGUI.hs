@@ -31,18 +31,17 @@ unfocLabel :: Widget -> IO ()
 unfocLabel w = widgetRestoreBg w StateNormal
 
 
-colorOnFocus :: IO Widget -> Widget -> IO ()
-colorOnFocus mw wid = do
-  w <- mw
-  void $ wid `on` focusInEvent $ liftIO $ focLabel w >> return False
-  void $ wid `on` focusOutEvent $ liftIO $ unfocLabel w >> return False
+colorOnFocus :: Widget -> Widget -> IO ()
+colorOnFocus wid lab = do
+  void $ wid `on` focusInEvent $ liftIO $ focLabel lab >> return False
+  void $ wid `on` focusOutEvent $ liftIO $ unfocLabel lab >> return False
   return ()
 
 textColumn :: ColumnId row Text
 textColumn = makeColumnIdString 0
 
 
-initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry])
+initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry], [Widget])
 initGrid n labelsText initdefs = do
   grid <- gridNew
   -- gridSetRowHomogeneous grid True -- rows same height
@@ -91,9 +90,7 @@ initGrid n labelsText initdefs = do
                  containerAdd tv =<< textViewNew
                  return $ castToWidget tv
     | store <- stores]
-  -- putStrLn . show =<< (mapM widgetGetName combos :: IO [String])
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
-  -- widgetGetName (combos !! 0) >>= putStrLn
 
   -- TODO
   entries <- join $ mapM getEntry <$> (filterM (\x -> (/= "GtkFrame") <$> (widgetGetName x :: IO String)) combos)
@@ -109,6 +106,6 @@ initGrid n labelsText initdefs = do
                entrySetCompletion en ec
              else return () | (en, st) <- zip entries (catMaybes stores)]
 
-  sequence_ [colorOnFocus (fromMaybeM undefined $ gridGetChildAt grid 0 i) (castToWidget wid) | (wid, i) <- zip entries [0..n - 1]]
+  sequence_ [colorOnFocus (castToWidget wid) (castToWidget lab) | (wid, lab) <- zip entries labels]
 
-  return (grid, entries)
+  return (grid, entries, combos)

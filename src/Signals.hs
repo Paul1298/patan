@@ -103,16 +103,16 @@ getText rcol = do
                         =<< containerGetChildren (castToContainer rcol)
                   st <- textBufferGetStartIter tb
                   end <- textBufferGetEndIter tb
-                  replace "\n" "\\line " <$> textIterGetText st end
+                  replace "\n" "\\par " <$> textIterGetText st end
     _          -> getEntry rcol >>= entryGetText
 
-signSectChange :: Button -> [Widget] -> [[Entry]] -> IO ()
-signSectChange ready widgets1 entries2 = do
+signSectChange :: Button -> [Widget] -> [[Widget]] -> IO ()
+signSectChange ready widgets1 widgets2 = do
   void $ ready `on` buttonActivated $ do
     out <- initRTF
     writeHeaderTable out
     mapM getText widgets1 >>= writeText1 out
-    mapM (mapM entryGetText) entries2 >>= writeText2 out
+    mapM (mapM getText) widgets2 >>= writeText2 out
     endRTF out
     case os of
       "linux"   -> createProcess (proc "loffice" [pathFile]) >> return ()

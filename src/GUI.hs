@@ -1,12 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module GUI where
 
-import           CommonGUI
 import           Control.Monad          (void)
-import           Control.Monad.Extra    (fromMaybeM)
 import           Control.Monad.IO.Class (liftIO)
-import           DefCombo
 import           Graphics.UI.Gtk
+
+import           CommonGUI
+import           DefCombo
+import           Fillings
 import           Labels
 import           Signals
 
@@ -14,7 +15,7 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
-             -- , windowAllowGrow      := False -- TODO расширение на винде
+             -- , windowAllowGrow      := False -- TODO расширение на винде не уверен, что на всех
              -- , windowDefaultWidth   := 820
              -- , windowDefaultHeight  := 1080
              , containerBorderWidth := 8
@@ -23,7 +24,7 @@ startGUI = do
 
 
   let n1 = length labels1
-  (grid1, entries1) <- initGrid n1 labels1 initDef1
+  (grid1, entries1, widgets1) <- initGrid n1 labels1 initDef1
   sign1sect grid1 entries1
 
   let n2 = length labels2 -- TODO delete using 0..
@@ -44,12 +45,12 @@ startGUI = do
     return False
 
   def2 <- defInner2
-  entries2 <- sequence
-            [ initGrid (length lab) lab (return def) >>= (\(g, e) -> containerAdd ex g >> return e)
+  (entries2, widgets2) <- unzip <$> sequence
+            [ initGrid (length lab) lab (return def) >>= (\(g, e, w) -> containerAdd ex g >> return (e, w))
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
-
-  widgets1 <- sequence [fromMaybeM undefined $ gridGetChildAt grid1 1 i | i <- [0..n1 - 1]]
-  signSectChange ready widgets1 entries2
+  fillings2 entries2
+  tmp widgets2
+  signSectChange ready widgets1 widgets2
   grid2 <- gridNew
   containerSetBorderWidth grid2 2
   gridSetRowSpacing grid2 2
