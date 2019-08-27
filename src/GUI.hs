@@ -39,11 +39,6 @@ startGUI = do
   ready <- buttonNewWithLabel "Сохранить документ"
   set ready [ widgetHExpand := True ]
 
-  void $ window `on` configureEvent $ do
-    (width, _) <- eventSize
-    sequence_ [liftIO $ widgetSetSizeRequest b (width - 40) 10 | b <- buts]
-    return False
-
   def2 <- defInner2
   (entries2, widgets2) <- unzip <$> sequence
             [ initGrid (length lab) lab (return def) >>= (\(g, e, w) -> containerAdd ex g >> return (e, w))
@@ -71,7 +66,7 @@ startGUI = do
   gridAttach grid note 0 1 1 1
   containerAdd window grid
 
-  -- windowMaximize window
+  windowMaximize window
   widgetShowAll window
   -- let tf i = do
   --            tv <- frameNew
@@ -81,7 +76,15 @@ startGUI = do
   --            gridAttach grid1 tv 1 i 1 1
   --            widgetShowAll tv
   -- mapM_ tf [23, 24, 25]
-  scrolledWindowSetMinContentHeight sw1 . (+10) =<< widgetGetAllocatedHeight grid1
+  -- h <- snd <$> windowGetSize window
+  -- putStrLn $ show h
+  -- scrolledWindowSetMinContentHeight sw1 h
+
+  void $ window `on` configureEvent $ do
+    (width, h) <- eventSize
+    liftIO $ scrolledWindowSetMinContentHeight sw1 (h - 100)
+    sequence_ [liftIO $ widgetSetSizeRequest b (width - 40) 10 | b <- buts]
+    return False
 
   void $ window `on` deleteEvent $ liftIO mainQuit >> return False -- Закрытие окна
   return ()
