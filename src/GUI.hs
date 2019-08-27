@@ -15,7 +15,7 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
-             -- , windowAllowGrow      := False -- TODO расширение на винде не уверен, что на всех
+             -- , windowAllowShrink    := True -- TODO расширение на винде не уверен, что на всех
              -- , windowDefaultWidth   := 820
              -- , windowDefaultHeight  := 1080
              , containerBorderWidth := 8
@@ -71,7 +71,7 @@ startGUI = do
   gridAttach grid note 0 1 1 1
   containerAdd window grid
 
-  windowMaximize window
+  -- windowMaximize window
   widgetShowAll window
   -- let tf i = do
   --            tv <- frameNew

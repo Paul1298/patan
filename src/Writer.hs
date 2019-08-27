@@ -138,15 +138,15 @@ writeText1 out (
       (d1 : d2 : '.' : m1 : m2 : '.' : y) = dateRep
       upDateRep = printf "«%s» " ([d1, d2]) ++ (monthIntToString ([m1, m2])) ++ y -- каламбурное название
   appendRTFStringOrPara out $ [
-                                Paragraph QCenter [RTFString Bold (header1 (read numRep :: Integer))]
+                                Paragraph QCenter [RTFString Bold (header1 numRep)]
                               , Paragraph QCenter [RTFString Roman upDateRep]
                               , Paragraph QJustify [RTFString Bold orgT, RTFString Roman (printf "%s; %s." org dep)]
-                              , Paragraph QJustify [RTFString Bold (medRecT $ printf "%05d" (read medRec :: Integer))]
+                              , Paragraph QJustify [RTFString Bold (medRecT medRec)]
                               , Paragraph QJustify [RTFString Bold fioT, RTFString Roman fio]
                               , Paragraph QJustify [RTFString Bold sexT, RTFString Roman sex]
                               , Paragraph QJustify [ RTFString Bold dateBirthT, RTFString Roman (dateBirth ++ ";")
                                                 , RTFString Bold ageT, RTFString Roman age]
-                              , Paragraph QJustify [ RTFString Bold dateDeathT, RTFString Roman dateDeath
+                              , Paragraph QJustify [ RTFString Bold dateDeathT, RTFString Roman (dateDeath ++ ".")
                                                 , RTFString Bold bedDaysT, RTFString Roman bedDays]
                               ] ++ [Paragraph QJustify $ case q of
                                                     Left l  -> [RTFString Bold l, RTFString Roman a]

@@ -5,8 +5,8 @@ import           Text.Printf (PrintfType, printf)
 
 import           Labels
 
-header1 :: Integer -> String
-header1 = printf "ПРОТОКОЛ\\line патологоанатомического вскрытия № %03d."
+header1 :: String -> String
+header1 = printf "ПРОТОКОЛ\\line патологоанатомического вскрытия № %s"
 
 text1 :: [Either String (String -> String)]
 text1 = [

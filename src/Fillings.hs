@@ -141,23 +141,22 @@ fillDates entries = do
 
 fillDatesWithTime :: [Entry] -> IO ()
 fillDatesWithTime entries = do
-  mapM_ (\x -> pattern x "__.__.____ г. __-__" [2, 5, 10, 11, 12, 13, 16]) entries
+  mapM_ (\x -> pattern x "__.__.____ г., __-__" [2, 5, 10, 11, 12, 13, 16]) entries
   mapM_ addCalendar entries
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do
   fillDates [ entries !! dateRepLabNum
             , entries !! dateBirthLabNum
-            , entries !! dateRecLabNum
             , entries !! datePsyLabNum
             ]
   fillDatesWithTime [
                       entries !! dateDeathLabNum
+                    , entries !! dateRecLabNum
                     ]
   onlyInteger [ head entries
               , entries !! medRecLabNum
               , entries !! ageLabNum
-              , entries !! 10
               ]
   entrySetText (entries !! 0) "1"
   entrySetText (entries !! 4) "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
