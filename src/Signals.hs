@@ -3,7 +3,6 @@ module Signals where
 import           Control.Monad          (void)
 import           Control.Monad.Extra    (findM, fromMaybeM, maybeM)
 import           Control.Monad.IO.Class (liftIO)
-import           Data.List.Utils        (replace)
 import           Data.Maybe             (fromJust)
 import           Graphics.UI.Gtk
 import           System.Info
@@ -103,7 +102,8 @@ getText rcol = do
                         =<< containerGetChildren (castToContainer rcol)
                   st <- textBufferGetStartIter tb
                   end <- textBufferGetEndIter tb
-                  replace "\n" "\\par " <$> textIterGetText st end
+                  --TODO replace "\n" "\\par " <$>
+                  textIterGetText st end
     _          -> getEntry rcol >>= entryGetText
 
 signSectChange :: Button -> [Widget] -> [[Widget]] -> IO ()

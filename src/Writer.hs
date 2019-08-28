@@ -1,7 +1,8 @@
 module Writer where
-import           Data.List   (intercalate)
+import           Data.List       (intercalate)
+import           Data.List.Utils (replace)
 import           System.IO
-import           Text.Printf (printf)
+import           Text.Printf     (printf)
 
 import           Text
 
@@ -64,6 +65,7 @@ startRTF out = do
   hPutStrLn out heading
   hPutStrLn out pageSize
 
+-- TODO update to template fun
 writeHeaderTable :: Handle -> IO ()
 writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
   "\\fs18\\linex090\
@@ -97,7 +99,7 @@ writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Ro
   \\\sl86 Утверждена приказом Минздрава России от 6 июня 2013 г. № 354н \\intbl\\cell\
   \\\row\n"]
 
--- TODO search in Internet normal
+-- TODO search in Internet normal way
 monthIntToString :: String -> String
 monthIntToString s = case s of
   "01" -> "января "
@@ -112,7 +114,7 @@ monthIntToString s = case s of
   "10" -> "октября "
   "11" -> "ноября "
   "12" -> "декабря "
-  _    -> "Нет такого месяца. Добавить ошибку" -- TODO
+  _    -> "Добавить ошибку" -- TODO
 
 
 writeText1 :: Handle -> [String] -> IO ()
@@ -149,7 +151,7 @@ writeText1 out (
                               , Paragraph QJustify [ RTFString Bold dateDeathT, RTFString Roman (dateDeath ++ ".")
                                                 , RTFString Bold bedDaysT, RTFString Roman bedDays]
                               ] ++ [Paragraph QJustify $ case q of
-                                                    Left l  -> [RTFString Bold l, RTFString Roman a]
+                                                    Left l  -> [RTFString Bold l, RTFString Roman (replace "\n" "\\par " a)]
                                                     Right r -> [RTFString Bold (r a)]| (q, a) <- zip qs as]
   hPutStrLn out "\\line"
 writeText1 _ _ = return ()

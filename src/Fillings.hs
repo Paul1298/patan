@@ -162,20 +162,23 @@ fillings1 entries = do
   entrySetText (entries !! 4) "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
   entrySetText (entries !! 21) "Указаны в посмертном клиническом эпикризе в истории болезни."
 
-fillBody :: [Entry] -> IO ()
-fillBody ens =
-  sequence_ $ zipWith (\e s -> pattern e s [5..100]) ens ["    пола", "    см.", "    кг."]
-
 fillings2 :: [[Entry]] -> IO ()
 fillings2 (body : es) = do
-  fillBody body
+  sequence_ $ zipWith entrySetText body [" пола", " см.", " кг."]
 
 fillTV :: Widget -> [String] -> IO ()
 fillTV w sts = do
   tb <- textViewGetBuffer . castToTextView . head
         =<< containerGetChildren (castToContainer w)
-  textBufferSetText tb (foldl (\b a -> b ++ a ++ "- ,\n") "" sts)
+  textBufferSetText tb (foldl1 (\a b -> a ++ " - ,\n" ++ b) sts ++ " - ")
+
+partList :: [Int] -> Int -> [a] -> (a -> b -> c) -> [b -> c]
+partList [] _ _ _                            = []
+partList a@(i : is) j (x : xs) f | i == j    = f x : partList is (j + 1) xs f
+                                 | otherwise = partList a (j + 1) xs f
 
 tmp :: [[Widget]] -> IO ()
 tmp ws = do
-  fillTV (last (ws !! 1)) ["диафрагма", "печень", "селезенка", "большой сальник", "желудок", "кишечник", "мочевой пузырь", "червеобразный отросток"]
+  sequence_ $ zipWith fillItems ws tvInner2
+  where
+    fillItems items (is, ss) = sequence_ $ zipWith ($) (partList is 0 items fillTV) ss

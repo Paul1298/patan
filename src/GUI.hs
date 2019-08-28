@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 module GUI where
 
 import           Control.Monad          (void)
@@ -15,13 +14,8 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
-             -- , windowAllowShrink    := True -- TODO расширение на винде не уверен, что на всех
-             -- , windowDefaultWidth   := 820
-             -- , windowDefaultHeight  := 1080
              , containerBorderWidth := 8
              ]
-  -- let n0 = length labels0
-
 
   let n1 = length labels1
   (grid1, entries1, widgets1) <- initGrid n1 labels1 initDef1
@@ -68,18 +62,8 @@ startGUI = do
 
   windowMaximize window
   widgetShowAll window
-  -- let tf i = do
-  --            tv <- frameNew
-  --            containerAdd tv =<< textViewNew
-  --            widgetSizeAllocate tv =<< (widgetGetAllocation $ entries1 !! (i - 1))
-  --            containerRemove grid1 =<< fromMaybeM undefined (widgetGetParent $ entries1 !! i)
-  --            gridAttach grid1 tv 1 i 1 1
-  --            widgetShowAll tv
-  -- mapM_ tf [23, 24, 25]
-  -- h <- snd <$> windowGetSize window
-  -- putStrLn $ show h
-  -- scrolledWindowSetMinContentHeight sw1 h
 
+  -- TODO need to speed up
   void $ window `on` configureEvent $ do
     (width, h) <- eventSize
     liftIO $ scrolledWindowSetMinContentHeight sw1 (h - 100)

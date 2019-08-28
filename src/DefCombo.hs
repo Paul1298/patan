@@ -78,19 +78,13 @@ defInner2 = return [
                      , Just ["правильное", "астеническое", "гиперстеническое"]
                      , Just ["удовлетворительное", "повышенное", "пониженное"]
                      , Nothing
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
-                     -- , Just []
+                     , Nothing
+                     , Nothing
+                     , Nothing
+                     , Nothing
+                     , Nothing
+                     , Nothing
+                     , Nothing
                      ]
                    , [ -- 20. Брюшная полость
                        Just ["правильное", "?"]
@@ -100,23 +94,16 @@ defInner2 = return [
                      , Nothing
                      ]
                    , [ -- 21. Грудная полость
-                       Just []
+                       Nothing
                      , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                     , Nothing
+                     , Nothing
                      ]
                    , [ -- 22. Полость черепа
                        Just []
                      , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                     , Nothing
+                     , Nothing
                      , Just []
                      , Just []
                      , Just []
@@ -124,23 +111,16 @@ defInner2 = return [
                      , Just []
                      ]
                    , [ -- 23. Органы кровообращения
-                       Just []
+                       Nothing
                      , Just []
                      , Just []
                      , Just []
                      , Just []
+                     , Nothing
+                     , Nothing
                      , Just []
                      , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                     , Nothing
                      ]
                    , [ -- 24. Органы дыхания
                        Just []

@@ -87,6 +87,7 @@ initGrid n labelsText initdefs = do
                    return $ castToWidget box
       Nothing -> do
                  tv <- frameNew
+                 containerSetBorderWidth tv 2
                  containerAdd tv =<< textViewNew
                  return $ castToWidget tv
     | store <- stores]

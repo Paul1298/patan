@@ -61,4 +61,4 @@ printfList :: String -> [String] -> String
 printfList string list = (printfList_ string list (length list - 1)) :: String
 
 textInner2 :: [[String] -> String]
-textInner2 = map (printfList . foldl (\b a -> b ++ a ++ " %s, ") "" . fmap unpack) labelsInner2
+textInner2 = map (printfList . foldl (\b a -> b ++ a ++ " %s. ") "" . fmap unpack) labelsInner2
