@@ -37,14 +37,13 @@ startGUI = do
   (entries2, widgets2) <- unzip <$> sequence
             [ initGrid (length lab) lab (return def) >>= (\(g, e, w) -> containerAdd ex g >> return (e, w))
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
-  fillings2 entries2
-  tmp widgets2
+  fillings2 widgets2
   signSectChange ready widgets1 widgets2
+
   grid2 <- gridNew
   containerSetBorderWidth grid2 2
   gridSetRowSpacing grid2 2
-  sequence_ [gridAttach grid2 e 0 i 2 1 | (e, i) <- zip exps [0..n2 - 1]] --attach them
-
+  sequence_ [gridAttach grid2 e 0 i 2 1 | (e, i) <- zip exps [0..n2 - 1]]
 
   note <- notebookNew
   sw1 <- scrolledWindowNew Nothing Nothing

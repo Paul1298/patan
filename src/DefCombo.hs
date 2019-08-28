@@ -149,13 +149,7 @@ defInner2 = return [
                      , Nothing
                      ]
                    , [ -- 26. Органы мочеполовой системы
-                       Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                       Nothing
                      , Just []
                      , Just []
                      , Just []
@@ -165,24 +159,13 @@ defInner2 = return [
                      , Just []
                      ]
                    , [ -- 27. Органы кроветворения
-                       Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                       Nothing
+                     , Nothing
                      , Just []
                      ]
                    , [ -- 28. Эндокринные железы
-                       Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                       Nothing
+                     , Nothing
                      , Just []
                      , Just []
                      ]

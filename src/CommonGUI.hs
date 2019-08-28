@@ -10,9 +10,11 @@ import           Data.Text              (Text)
 import           Graphics.UI.Gtk
 import           Prelude                hiding (drop, length)
 
+getTV :: WidgetClass w => w -> IO TextView
+getTV w = castToTextView . head <$> containerGetChildren (castToContainer w)
+
 getEntry :: WidgetClass w => w -> IO Entry
 getEntry w = do
-  -- TODO по-нормальному сделать
   name <- widgetGetName w
   case name of
     ("GtkComboBox" :: String) ->
@@ -44,7 +46,6 @@ textColumn = makeColumnIdString 0
 initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry], [Widget])
 initGrid n labelsText initdefs = do
   grid <- gridNew
-  -- gridSetRowHomogeneous grid True -- rows same height
   gridSetColumnHomogeneous grid True
   gridSetRowSpacing grid 4
   gridSetColumnSpacing grid 1
@@ -61,8 +62,7 @@ initGrid n labelsText initdefs = do
   widgetSetCanFocus (labels !! 0) True
   widgetGrabFocus (labels !! 0)
 
-  -- entries with comboBox
-  defs <- initdefs --[Maybe [Text]]
+  defs <- initdefs
   stores <- sequence [case def of
                         Just d  -> do
                                    l <- listStoreNew d
@@ -70,7 +70,6 @@ initGrid n labelsText initdefs = do
                         Nothing -> return Nothing| def <- defs]
   sequence_ [whenJust store $ \st -> customStoreSetColumn st textColumn id | store <- stores ] -- set the extraction function
 
-  -- combos
   combos <- sequence
     [case store of
       Just st -> do
@@ -93,10 +92,11 @@ initGrid n labelsText initdefs = do
     | store <- stores]
   sequence_ [gridAttach grid c 1 i 2 1 | (c, i) <- zip combos [0..n - 1]]
 
-  -- TODO
-  entries <- join $ mapM getEntry <$> (filterM (\x -> (/= "GtkFrame") <$> (widgetGetName x :: IO String)) combos)
+  names <- mapM widgetGetName combos
+  let ncs = zip names combos
 
-  -- entry-completion
+  entries <- mapM (getEntry . snd) $ filter ((/= ("GtkFrame" :: String)) . fst) ncs
+
   sequence_ [do
              len <- listStoreGetSize st
              if (len /= 0)
@@ -107,6 +107,10 @@ initGrid n labelsText initdefs = do
                entrySetCompletion en ec
              else return () | (en, st) <- zip entries (catMaybes stores)]
 
-  sequence_ [colorOnFocus (castToWidget wid) (castToWidget lab) | (wid, lab) <- zip entries labels]
+  painters <- mapM (\(n, w) -> case n of
+                                "GtkFrame" -> castToWidget <$> getTV w
+                                _          -> castToWidget <$> getEntry w) ncs
+
+  sequence_ [colorOnFocus wid (castToWidget lab) | (wid, lab) <- zip painters labels]
 
   return (grid, entries, combos)

@@ -65,7 +65,7 @@ startRTF out = do
   hPutStrLn out heading
   hPutStrLn out pageSize
 
--- TODO update to template fun
+-- TODO update to template function
 writeHeaderTable :: Handle -> IO ()
 writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
   "\\fs18\\linex090\

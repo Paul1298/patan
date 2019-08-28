@@ -19,9 +19,6 @@ foo entries (TreeIter _ i _ _) = do
   -- putStrLn $ show (i + 2)
   [fio, sex, dep, age, dateDeath, datePsy] <- getAll (fromIntegral (i + 2))
   entrySetText (entries !! fioLabNum) fio
-  -- entrySetText (entries !! sexLabNum) sex -- TODO
-  -- (entries !! sexLabNum) `on` editableChanged $ do
-  --   entryGetText (entries !! sexLabNum) >>= putStrLn
   Just grid   <- fmap castToGrid <$> maybeM undefined widgetGetParent (widgetGetParent (head entries))
   Just sexBox <- fmap castToContainer <$> gridGetChildAt grid 1 sexLabNum
   buttonClicked =<< castToButton <$> fromMaybeM undefined
@@ -98,8 +95,7 @@ getText rcol = do
                     Nothing  -> return ""
 
     "GtkFrame" -> do
-                  tb <- textViewGetBuffer . castToTextView . head
-                        =<< containerGetChildren (castToContainer rcol)
+                  tb <- textViewGetBuffer =<< getTV rcol
                   st <- textBufferGetStartIter tb
                   end <- textBufferGetEndIter tb
                   --TODO replace "\n" "\\par " <$>

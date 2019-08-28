@@ -6,9 +6,11 @@ import           Control.Monad.IO.Class (liftIO)
 import           Data.Char              (isDigit)
 import           Data.Foldable          (foldlM)
 import           Data.IORef
+import           Data.List              (findIndices)
 import           Graphics.UI.Gtk
 import           Text.Printf
 
+import           CommonGUI
 import           Labels
 
 onlyInteger :: [Entry] -> IO ()
@@ -95,7 +97,7 @@ pattern entry def invis = do
   where
     nextPos :: Int -> [Int] -> Int
     nextPos pos []     = pos
-    nextPos _ [i]      = i + 1 -- TODO fix this in the end of str
+    nextPos _ [i]      = i + 1
     nextPos _ (i : is) = if (head is == succ i) then nextPos undefined is else i + 1
 
 addCalendar :: Entry -> IO ()
@@ -122,7 +124,6 @@ addCalendar entry = do
 
   void $ but `on` buttonActivated $ do
     widgetGrabFocus cal
-    -- TODO add color label
     wis <- get cal widgetVisible
     if wis
     then widgetHide cal
@@ -134,15 +135,16 @@ addCalendar entry = do
   void $ cal `on` focusOutEvent $ liftIO $ widgetHide cal >> return False
   return ()
 
-fillDates :: [Entry] -> IO ()
-fillDates entries = do
-  mapM_ (\x -> pattern x "__.__.____ г." [2, 5, 10, 11, 12]) entries
+fillWithCal :: [Entry] -> String -> IO ()
+fillWithCal entries patt = do
+  mapM_ (\x -> pattern x patt (findIndices (/= '_') patt)) entries
   mapM_ addCalendar entries
 
+fillDates :: [Entry] -> IO ()
+fillDates entries = fillWithCal entries "__.__.____ г."
+
 fillDatesWithTime :: [Entry] -> IO ()
-fillDatesWithTime entries = do
-  mapM_ (\x -> pattern x "__.__.____ г., __-__" [2, 5, 10, 11, 12, 13, 16]) entries
-  mapM_ addCalendar entries
+fillDatesWithTime entries = fillWithCal entries "__.__.____ г., __-__"
 
 fillings1 :: [Entry] -> IO ()
 fillings1 entries = do
@@ -162,14 +164,9 @@ fillings1 entries = do
   entrySetText (entries !! 4) "Областное бюджетное учреждение здравоохранения «Курская городская клиническая больница скорой медицинской помощи»"
   entrySetText (entries !! 21) "Указаны в посмертном клиническом эпикризе в истории болезни."
 
-fillings2 :: [[Entry]] -> IO ()
-fillings2 (body : es) = do
-  sequence_ $ zipWith entrySetText body [" пола", " см.", " кг."]
-
 fillTV :: Widget -> [String] -> IO ()
 fillTV w sts = do
-  tb <- textViewGetBuffer . castToTextView . head
-        =<< containerGetChildren (castToContainer w)
+  tb <- textViewGetBuffer =<< getTV w
   textBufferSetText tb (foldl1 (\a b -> a ++ " - ,\n" ++ b) sts ++ " - ")
 
 partList :: [Int] -> Int -> [a] -> (a -> b -> c) -> [b -> c]
@@ -177,8 +174,9 @@ partList [] _ _ _                            = []
 partList a@(i : is) j (x : xs) f | i == j    = f x : partList is (j + 1) xs f
                                  | otherwise = partList a (j + 1) xs f
 
-tmp :: [[Widget]] -> IO ()
-tmp ws = do
+fillings2 :: [[Widget]] -> IO ()
+fillings2 ws = do
+  sequence_ $ zipWith (\x s -> (flip entrySetText) s =<< getEntry x) (head ws) [" пола", " см.", " кг."]
   sequence_ $ zipWith fillItems ws tvInner2
   where
     fillItems items (is, ss) = sequence_ $ zipWith ($) (partList is 0 items fillTV) ss
