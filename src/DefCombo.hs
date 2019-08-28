@@ -127,18 +127,13 @@ defInner2 = return [
                      , Just []
                      , Just []
                      , Just []
+                     , Nothing
                      , Just []
                      , Just []
                      , Just []
                      , Just []
                      , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                     , Nothing
                      , Just []
                      , Just []
                      ]
@@ -147,20 +142,11 @@ defInner2 = return [
                      , Just []
                      , Just []
                      , Just []
+                     , Nothing
+                     , Nothing
+                     , Nothing
                      , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
-                     , Just []
+                     , Nothing
                      ]
                    , [ -- 26. Органы мочеполовой системы
                        Just []
