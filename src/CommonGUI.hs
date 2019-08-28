@@ -2,8 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module CommonGUI where
 
-import           Control.Monad          (filterM, join, void)
-import           Control.Monad.Extra    (fromMaybeM, whenJust)
+import           Control.Monad          (void)
+import           Control.Monad.Extra    (whenJust)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Maybe             (catMaybes)
 import           Data.Text              (Text)
@@ -107,7 +107,7 @@ initGrid n labelsText initdefs = do
                entrySetCompletion en ec
              else return () | (en, st) <- zip entries (catMaybes stores)]
 
-  painters <- mapM (\(n, w) -> case n of
+  painters <- mapM (\(name, w) -> case name of
                                 "GtkFrame" -> castToWidget <$> getTV w
                                 _          -> castToWidget <$> getEntry w) ncs
 

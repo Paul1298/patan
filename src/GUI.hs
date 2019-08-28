@@ -34,7 +34,7 @@ startGUI = do
   set ready [ widgetHExpand := True ]
 
   def2 <- defInner2
-  (entries2, widgets2) <- unzip <$> sequence
+  (_, widgets2) <- unzip <$> sequence
             [ initGrid (length lab) lab (return def) >>= (\(g, e, w) -> containerAdd ex g >> return (e, w))
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
   fillings2 widgets2
