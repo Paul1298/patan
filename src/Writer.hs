@@ -67,7 +67,7 @@ startRTF out = do
 
 -- TODO update to template function
 writeHeaderTable :: Handle -> IO ()
-writeHeaderTable out = appendRTFStringOrPara out $ Paragraph QLeft [RTFString Roman
+writeHeaderTable out = appendRTFStringOrPara out $ [RTFString Roman
   "\\fs18\\linex090\
 
   \\\trowd\
