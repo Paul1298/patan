@@ -3,8 +3,9 @@ module GUI.Signals where
 import           Control.Monad          (void)
 import           Control.Monad.Extra    (findM, fromMaybeM, maybeM)
 import           Control.Monad.IO.Class (liftIO)
+import           Data.Functor           ((<&>))
 import           Data.Maybe             (fromJust)
-import           Graphics.UI.Gtk
+import           Graphics.UI.Gtk        hiding (response)
 import           System.Info
 import           System.Process
 
@@ -107,11 +108,11 @@ signSectChange ready widgets1 widgets2 = do
     window <- fmap castToWindow <$> maybeM undefined widgetGetParent (widgetGetParent ready)
     dialog <- fileChooserDialogNew (Just "Choose where save your Protocol") window
               FileChooserActionSave [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
-    fileChooserSetCurrentName dialog "test.rtf"
+    -- TODO add doctor surname to defName
+    defName <- getText (head widgets1) <&> (++ ".rtf")
+    fileChooserSetCurrentName dialog defName
     widgetShowAll dialog
     response <- dialogRun dialog
-    -- fileChooserSetCurrentFolder dialog "../"
-    -- fileChooserSetFilename dialog "test.rtf"
     case response of
       ResponseAccept      -> do Just pathFile <- fileChooserGetFilename dialog
                                 out <- initRTF pathFile
@@ -120,8 +121,8 @@ signSectChange ready widgets1 widgets2 = do
                                 writeText2 out =<< mapM (mapM getText) widgets2
                                 endRTF out
                                 case os of
-                                  "linux"   -> createProcess (proc "loffice" [pathFile]) >> return ()
-                                  "mingw32" -> runCommand ("start " ++ pathFile) >> return ()
+                                  "linux"   -> runCommand ("xdg-open " ++ pathFile)
+                                  "mingw32" -> runCommand ("start " ++ pathFile)
                                   _         -> undefined
                                 return ()
       ResponseCancel      -> putStrLn "dialog canceled"

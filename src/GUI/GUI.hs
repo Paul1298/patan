@@ -39,7 +39,6 @@ startGUI = do
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
   fillings2 widgets2
 
-  -- TODO add moving protocol id and doctor surname to default filePath
   signSectChange ready widgets1 widgets2
 
   grid2 <- gridNew
@@ -86,7 +85,7 @@ startGUI = do
 
   windowMaximize window
   widgetShowAll window
-  notebookNextPage note
+  -- notebookNextPage note
 
   -- TODO need to speed up
   void $ window `on` configureEvent $ do
