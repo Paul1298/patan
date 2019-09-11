@@ -11,7 +11,7 @@ steps:
   # - unicode_syntax:
   #     # In order to make this work, we also need to insert the UnicodeSyntax
   #     # language pragma. If this flag is set to true, we insert it when it's
-  #     # not already present. You may want to disable it if you configure
+  #     # not alsaveRTF present. You may want to disable it if you configure
   #     # language extensions using some other method than pragmas. Default:
   #     # true.
   #     add_language_pragma: true

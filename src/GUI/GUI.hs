@@ -14,7 +14,7 @@ startGUI :: IO ()
 startGUI = do
   window <- windowNew
   set window [ windowTitle          := "ПаТаН"
-             , containerBorderWidth := 8
+             -- , containerBorderWidth := 8
              ]
 
   let n1 = length labels1
@@ -30,8 +30,16 @@ startGUI = do
                       expanderSetLabelWidget e b
                       return b | (e, l) <- zip exps labels2]
 
-  ready <- buttonNewWithLabel "Сохранить документ"
-  set ready [ widgetHExpand := True ]
+  saveRTF <- buttonNewWithLabel "Сохранить документ"
+  set saveRTF [ widgetHExpand := True ]
+
+  saveToEx <- buttonNewWithLabel "Сохранить в Excel"
+  set saveToEx [ widgetHExpand := True ]
+
+  butBox <- hBoxNew True 0
+  containerAdd butBox saveRTF
+  containerAdd butBox saveToEx
+
 
   def2 <- defInner2
   (_, widgets2) <- unzip <$> sequence
@@ -39,7 +47,7 @@ startGUI = do
             | (ex, lab, def) <- zip3 exps labelsInner2 def2 ]
   fillings2 widgets2
 
-  signSectChange ready widgets1 widgets2
+  signSectChange saveRTF saveToEx widgets1 widgets2
 
   grid2 <- gridNew
   containerSetBorderWidth grid2 2
@@ -78,10 +86,21 @@ startGUI = do
 
   void $ notebookAppendPage note sw2 "Макроскопическое исследование"
 
+  menuBar <- createMenuBar menuBarDescr
+
+  vbox <- vBoxNew False 0
+
   grid <- gridNew
-  gridAttach grid ready 0 0 1 1
+  gridAttach grid butBox 0 0 1 1
   gridAttach grid note 0 1 1 1
-  containerAdd window grid
+
+  boxPackStart vbox menuBar PackNatural 0
+  boxPackStart vbox grid PackNatural 0
+
+  -- containerAdd vbox menuBar
+  -- containerAdd vbox grid
+
+  containerAdd window vbox
 
   windowMaximize window
   widgetShowAll window

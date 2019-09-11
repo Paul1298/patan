@@ -13,8 +13,8 @@ import           Data.Time.Clock.POSIX      (getPOSIXTime,
                                              posixSecondsToUTCTime)
 import           Data.Time.Format           (defaultTimeLocale, formatTime)
 
-test :: IO ()
-test = do
+writeToEx :: IO ()
+writeToEx = do
   ct <- getPOSIXTime
   let
       sheet = def & cellValueAt (1,2) ?~ CellDouble 42.0
@@ -57,19 +57,18 @@ deptX = getColumn 7
 getAll :: Int -> IO [Text]
 getAll row = do
   bs <- L.readFile "Летальность.xlsx"
+  let xl = toXlsx bs
   let value c = case help of
                   Just (CellText t)   -> return t
                   Just (CellDouble d) ->
                     if (c == 9 || c == 17)
                     then do
-                      let doubleToUTCTime = posixSecondsToUTCTime . realToFrac
-                      -- TODO use dateBase instead
-                      let u = addUTCTime (-2209157400) (doubleToUTCTime $ (d * 86400)) -- because UTC from 1970, but Excel from 1900
-                      let s = formatTime defaultTimeLocale "%m%d%_Y" u -- our format
+                      let u = dateFromNumber (xl ^. xlDateBase) d
+                      let s = formatTime defaultTimeLocale "%m%d%_Y" u
                       return $ pack s
                     else return $ txtd d
                   _                   -> return ""
                   where
-                    help = toXlsx bs ^? ixSheet "Лист1"
+                    help = xl ^? ixSheet "Лист1"
                            . ixCell (row, c) . cellValue . _Just
   sequence [value c | c <- [2, 3, 7, 4, 9, 17]]

@@ -101,10 +101,14 @@ getText rcol = do
                   textIterGetText st end
     _          -> getEntry rcol >>= entryGetText
 
-signSectChange :: Button -> [Widget] -> [[Widget]] -> IO ()
-signSectChange ready widgets1 widgets2 = do
-  void $ ready `on` buttonActivated $ do
-    window <- fmap castToWindow <$> maybeM undefined widgetGetParent (widgetGetParent ready)
+signSectChange :: Button -> Button -> [Widget] -> [[Widget]] -> IO ()
+signSectChange saveRTF saveToEx widgets1 widgets2 = do
+  void $ saveRTF `on` buttonActivated $ do
+    window <- fmap castToWindow <$>
+              (widgetGetParent . fromJust
+              =<< widgetGetParent . fromJust
+              =<< widgetGetParent . fromJust
+              =<< widgetGetParent saveRTF)
     dialog <- fileChooserDialogNew (Just "Choose where save your Protocol") window
               FileChooserActionSave [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
     -- TODO add doctor surname to defName
@@ -114,16 +118,44 @@ signSectChange ready widgets1 widgets2 = do
     response <- dialogRun dialog
     case response of
       ResponseAccept      -> do Just pathFile <- fileChooserGetFilename dialog
+                                putStrLn pathFile
                                 out <- initRTF pathFile
                                 writeHeaderTable out
                                 writeText1 out =<< mapM getText widgets1
                                 writeText2 out =<< mapM (mapM getText) widgets2
                                 endRTF out
-                                case os of
-                                  "linux"   -> runCommand ("xdg-open " ++ pathFile)
-                                  "mingw32" -> runCommand ("start " ++ pathFile)
-                                  _         -> undefined
+                                -- open pathFile
                                 return ()
+                                where
+                                  open pathFile
+                                    = case os of
+                                        "linux"   -> runCommand ("xdg-open " ++ pathFile)
+                                        "mingw32" -> runCommand ("start "    ++ pathFile)
+                                        _         -> undefined
+
       ResponseCancel      -> putStrLn "dialog canceled"
       ResponseDeleteEvent -> putStrLn "dialog closed"
     widgetHide dialog
+
+    -- void $ saveToEx `on` buttonActivated $ do
+    --   window <- fmap castToWindow <$>
+    --             (widgetGetParent . fromJust
+    --             =<< widgetGetParent . fromJust
+    --             =<< widgetGetParent . fromJust
+    --             =<< widgetGetParent saveToEx)
+    --   dialog <- fileChooserDialogNew (Just "Choose Excel") window
+    --             FileChooserActionSave [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
+    --   widgetShowAll dialog
+    --   response <- dialogRun dialog
+    --   case response of
+    --     ResponseAccept      -> do Just pathFile <- fileChooserGetFilename dialog
+    --                               out <- initRTF pathFile
+    --                               writeHeaderTable out
+    --                               writeText1 out =<< mapM getText widgets1
+    --                               writeText2 out =<< mapM (mapM getText) widgets2
+    --                               endRTF out
+    --                               -- open pathFile
+    --                               return ()
+    --     ResponseCancel      -> putStrLn "dialog canceled"
+    --     ResponseDeleteEvent -> putStrLn "dialog closed"
+    --   widgetHide dialog
