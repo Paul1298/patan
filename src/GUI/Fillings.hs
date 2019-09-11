@@ -118,7 +118,7 @@ addCalendar entry = do
   void $ vbox `on` showSignal $ widgetHide cal
 
   but   <- buttonNew
-  buttonSetImage but =<< imageNewFromFile "download.jpeg"
+  buttonSetImage but =<< imageNewFromFile "resources/download.jpeg"
   widgetSetSizeRequest but 160 32
 
   void $ but `on` buttonActivated $ do

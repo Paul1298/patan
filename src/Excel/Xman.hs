@@ -8,9 +8,7 @@ import           Codec.Xlsx.Writer.Internal (txtd)
 import           Control.Lens
 import qualified Data.ByteString.Lazy       as L
 import           Data.Text                  (Text, pack)
-import           Data.Time.Clock            (addUTCTime)
-import           Data.Time.Clock.POSIX      (getPOSIXTime,
-                                             posixSecondsToUTCTime)
+import           Data.Time.Clock.POSIX      (getPOSIXTime)
 import           Data.Time.Format           (defaultTimeLocale, formatTime)
 
 writeToEx :: IO ()
@@ -25,7 +23,7 @@ writeToEx = do
 
 getMKB :: Int -> IO [Text]
 getMKB col = do
-  bs <- L.readFile "mkb10.xlsx"
+  bs <- L.readFile "resources/mkb10.xlsx"
   let value r = case help of
                   Just (CellText t) -> t
                   _                 -> ""
@@ -39,7 +37,7 @@ diagnosX = getMKB 2
 
 getColumn :: Int -> IO [Text]
 getColumn col = do
-  bs <- L.readFile "Летальность.xlsx"
+  bs <- L.readFile "resources/Летальность.xlsx"
   let value r = case help of
                   Just (CellText t)   -> t
                   Just (CellDouble d) -> txtd d
@@ -56,7 +54,7 @@ deptX = getColumn 7
 
 getAll :: Int -> IO [Text]
 getAll row = do
-  bs <- L.readFile "Летальность.xlsx"
+  bs <- L.readFile "resources/Летальность.xlsx"
   let xl = toXlsx bs
   let value c = case help of
                   Just (CellText t)   -> return t
