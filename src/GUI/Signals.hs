@@ -124,8 +124,6 @@ signSectChange saveRTF saveToEx widgets1 widgets2 = do
                                 writeText1 out =<< mapM getText widgets1
                                 writeText2 out =<< mapM (mapM getText) widgets2
                                 endRTF out
-                                -- open pathFile
-                                return ()
                                 where
                                   open pathFile
                                     = case os of
@@ -135,27 +133,23 @@ signSectChange saveRTF saveToEx widgets1 widgets2 = do
 
       ResponseCancel      -> putStrLn "dialog canceled"
       ResponseDeleteEvent -> putStrLn "dialog closed"
+      _                   -> undefined
     widgetHide dialog
 
-    -- void $ saveToEx `on` buttonActivated $ do
-    --   window <- fmap castToWindow <$>
-    --             (widgetGetParent . fromJust
-    --             =<< widgetGetParent . fromJust
-    --             =<< widgetGetParent . fromJust
-    --             =<< widgetGetParent saveToEx)
-    --   dialog <- fileChooserDialogNew (Just "Choose Excel") window
-    --             FileChooserActionSave [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
-    --   widgetShowAll dialog
-    --   response <- dialogRun dialog
-    --   case response of
-    --     ResponseAccept      -> do Just pathFile <- fileChooserGetFilename dialog
-    --                               out <- initRTF pathFile
-    --                               writeHeaderTable out
-    --                               writeText1 out =<< mapM getText widgets1
-    --                               writeText2 out =<< mapM (mapM getText) widgets2
-    --                               endRTF out
-    --                               -- open pathFile
-    --                               return ()
-    --     ResponseCancel      -> putStrLn "dialog canceled"
-    --     ResponseDeleteEvent -> putStrLn "dialog closed"
-    --   widgetHide dialog
+  void $ saveToEx `on` buttonActivated $ do
+    window <- fmap castToWindow <$>
+              (widgetGetParent . fromJust
+              =<< widgetGetParent . fromJust
+              =<< widgetGetParent . fromJust
+              =<< widgetGetParent saveToEx)
+    dialog <- fileChooserDialogNew (Just "Choose Excel") window
+              FileChooserActionOpen [("gtk-cancel", ResponseCancel), ("gtk-ok", ResponseOk)]
+    widgetShowAll dialog
+    response <- dialogRun dialog
+    case response of
+      ResponseOk          -> do Just pathFile <- fileChooserGetFilename dialog
+                                writeToEx pathFile
+      ResponseCancel      -> putStrLn "dialog canceled"
+      ResponseDeleteEvent -> putStrLn "dialog closed"
+      _                   -> undefined
+    widgetHide dialog
