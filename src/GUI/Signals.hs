@@ -74,7 +74,6 @@ sign1sect grid entries = do
   void $ medRecEC `on` matchSelected $ (\_ ti -> foo entries ti)
 
   comboBoxSetActive medRecCB 0
-  -- (entryGetText (entries !! sexLabNum) :: IO String) >>= putStrLn
 
   st <- listStoreNew =<< diagnosX
   customStoreSetColumn st textColumn id

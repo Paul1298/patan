@@ -28,7 +28,7 @@ getEntry w = do
     _                         -> undefined
 
 focLabel :: Widget -> IO ()
-focLabel w = widgetModifyBg w StateNormal (Color 0 34000 0)
+focLabel w = widgetModifyBg w StateNormal (Color 16640 26880 57600)
 unfocLabel :: Widget -> IO ()
 unfocLabel w = widgetRestoreBg w StateNormal
 
@@ -41,7 +41,6 @@ colorOnFocus wid lab = do
 
 textColumn :: ColumnId row Text
 textColumn = makeColumnIdString 0
-
 
 initGrid :: Int -> [Text] -> IO [Maybe [Text]] -> IO (Grid, [Entry], [Widget])
 initGrid n labelsText initdefs = do
@@ -113,3 +112,37 @@ initGrid n labelsText initdefs = do
   sequence_ [colorOnFocus wid (castToWidget lab) | (wid, lab) <- zip painters labels]
 
   return (grid, entries, combos)
+
+createMenuBar :: [([Char], [([Char], Maybe (IO ()))])] -> IO MenuBar
+createMenuBar descr
+    = do bar <- menuBarNew
+         mapM_ (createMenu bar) descr
+         return bar
+    where
+      createMenu bar (name,items)
+          = do menu <- menuNew
+               item <- menuItemNewWithLabelOrMnemonic name
+               menuItemSetSubmenu item menu
+               menuShellAppend bar item
+               mapM_ (createMenuItem menu) items
+      createMenuItem menu (name,action)
+          = do item <- menuItemNewWithLabelOrMnemonic name
+               menuShellAppend menu item
+               case action of
+                 Just act -> on item menuItemActivate act
+                 Nothing  -> on item menuItemActivate (return ())
+      menuItemNewWithLabelOrMnemonic name
+          | elem '_' name = menuItemNewWithMnemonic name
+          | otherwise     = menuItemNewWithLabel name
+
+menuBarDescr :: [([Char], [([Char], Maybe (IO ()))])]
+menuBarDescr
+    = [ ("_File", [ ("Open", Nothing)
+                  , ("Save", Nothing)
+                  , ("_Quit", Just mainQuit)
+                  ]
+        )
+      , ("Help",  [ ("_Help", Nothing)
+                  ]
+        )
+      ]
