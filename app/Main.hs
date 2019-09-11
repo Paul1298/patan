@@ -7,7 +7,6 @@ import           GUI.GUI
 
 main :: IO ()
 main = do
-  -- test
   void initGUI
   startGUI
   mainGUI
