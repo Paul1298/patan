@@ -15,6 +15,9 @@ import           System.IO
 firstSheet :: Xlsx -> Worksheet
 firstSheet xlsx = snd . head $ xlsx ^. xlSheets
 
+firstSheetName :: Xlsx -> Text
+firstSheetName xlsx = fst . head $ xlsx ^. xlSheets
+
 writeToEx :: String -> IO ()
 writeToEx fileName = do
   ct <- getPOSIXTime
@@ -23,8 +26,8 @@ writeToEx fileName = do
   hClose file
   let
       sheet = firstSheet xlsx_old & cellValueAt (1,2) ?~ CellDouble 42.0
-                              & cellValueAt (3,2) ?~ CellText "foo"
-      xlsx  = xlsx_old & atSheet "Sheet1" ?~ sheet
+                                  & cellValueAt (1,1) ?~ CellText "Тест1"
+      xlsx  = xlsx_old & atSheet (firstSheetName xlsx_old) ?~ sheet
   L.writeFile fileName $ fromXlsx ct xlsx
   -- L.writeFile fileName $ fromXlsx ct xlsx_old
 
