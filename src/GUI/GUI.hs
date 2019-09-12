@@ -35,6 +35,7 @@ startGUI = do
 
   saveToEx <- buttonNewWithLabel "Сохранить в Excel"
   set saveToEx [ widgetHExpand := True ]
+  -- TODO add "Save to GS"
 
   butBox <- hBoxNew True 0
   containerAdd butBox saveRTF

@@ -44,7 +44,7 @@ exampleGetValue sheetID range = do
   lgr <- newLogger Debug stdout
   env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
   runResourceT . runGoogle env $
-    send  (spreadsheetsValuesGet sheetID range )
+    send  (spreadsheetsValuesGet sheetID range)
 
 
 exampleAppendValue :: Text -> Text -> [[Value]] -> IO AppendValuesResponse
@@ -57,10 +57,15 @@ exampleAppendValue sheetID range val =  do
           ( vrMajorDimension .~ Just VRMDRows $ vrValues .~ val $ vrRange .~ Just range $ valueRange)
           range )
 
+testId :: Text
+testId = "1_KM9xgF-LpUsSrLTvxRhz7ZxEPrw_OGIWX6T-dAfNKM"
+
 main :: IO ()
 main = do
-  ss <- exampleGetValue "1_KM9xgF-LpUsSrLTvxRhz7ZxEPrw_OGIWX6T-dAfNKM" "Лист1!A1:C3"
-  putStrLn $ show ss
+  -- TODO move secret json to ~./config/gcloud
+  ss <- exampleGetValue testId "Лист1!A1:A2"
+  write <- exampleAppendValue testId "Лист1!A1:A1" [[String "Pong"]]
+  -- putStrLn $ show ss
   return ()
   -- spreadsheetsGet "Новая таблица"
   -- void initGUI
