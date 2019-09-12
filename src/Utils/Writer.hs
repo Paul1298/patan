@@ -139,7 +139,7 @@ writeText1 out (
         : Left dateDeathT : Left bedDaysT
         : qs) = text1
       (d1 : d2 : '.' : m1 : m2 : '.' : y) = dateRep
-      upDateRep = printf "«%s» " ([d1, d2]) ++ (monthIntToString ([m1, m2])) ++ y -- каламбурное название
+      upDateRep = printf "«%s» " ([d1, d2]) ++ (monthIntToString ([m1, m2])) ++ y
   appendRTFStringOrPara out $ [
                                 Paragraph QCenter [RTFString Bold (header1 numRep)]
                               , Paragraph QCenter [RTFString Roman upDateRep]

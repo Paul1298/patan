@@ -24,8 +24,7 @@ writeToEx fileName = do
   file <- openBinaryFile fileName ReadWriteMode
   xlsx_old <- toXlsx <$!> L.hGetContents file
   hClose file
-  let
-      sheet = firstSheet xlsx_old & cellValueAt (1,2) ?~ CellDouble 42.0
+  let sheet = firstSheet xlsx_old & cellValueAt (1,2) ?~ CellDouble 42.0
                                   & cellValueAt (1,1) ?~ CellText "Тест1"
       xlsx  = xlsx_old & atSheet (firstSheetName xlsx_old) ?~ sheet
   L.writeFile fileName $ fromXlsx ct xlsx
