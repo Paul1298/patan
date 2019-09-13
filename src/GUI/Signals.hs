@@ -119,6 +119,7 @@ signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
     defName <- getText (head widgets1) <&> (++ ".rtf")
     fileChooserSetCurrentName dialog defName
     widgetShowAll dialog
+
     response <- dialogRun dialog
     case response of
       ResponseAccept      -> do Just pathFile <- fileChooserGetFilename dialog
@@ -144,6 +145,7 @@ signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
               FileChooserActionOpen
               [("gtk-cancel", ResponseCancel), ("gtk-ok", ResponseOk)]
     widgetShow dialog
+
     response <- dialogRun dialog
     case response of
       ResponseOk          -> do Just pathFile <- fileChooserGetFilename dialog
@@ -159,10 +161,13 @@ signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
                , windowResizable    := False
                , windowDefaultWidth := titleWidthInpixels ]
     linkEntry <- entryNew
+    entrySetText linkEntry "https://docs.google.com/spreadsheets/d/1d5s6kHQCsdU3xPDMesmEDS_H3XrcMd31vRNqphI3ebQ/edit#gid=1660848898"
+    void $ linkEntry `on` entryActivated $ dialogResponse dialog ResponseOk
+
     containerRemove dialog =<< head <$> containerGetChildren dialog -- remove def VBox
     containerAdd dialog linkEntry
-    widgetShow linkEntry -- to show differences
-    void $ linkEntry `on` entryActivated $ dialogResponse dialog ResponseOk
+    widgetShowAll dialog
+
     response <- dialogRun dialog
     case response of
       ResponseOk -> writeToGS =<< entryGetText linkEntry

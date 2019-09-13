@@ -8,7 +8,7 @@ import           Network.Google.Storage
 import           Control.Lens                                    ((&), (.~),
                                                                   (<&>), (?~))
 import           Data.Aeson.Types
-import           Data.Text                                       (Text)
+import           Data.Text                                       (Text, splitOn)
 import           System.IO                                       (stdout)
 
 -- |
@@ -54,15 +54,12 @@ exampleAValue sheetID range val =  do
 testId :: Text
 testId = "1_KM9xgF-LpUsSrLTvxRhz7ZxEPrw_OGIWX6T-dAfNKM"
 -- testId = "1d5s6kHQCsdU3xPDMesmEDS_H3XrcMd31vRNqphI3ebQ"
-
+-- https://docs.google.com/spreadsheets/d/1d5s6kHQCsdU3xPDMesmEDS_H3XrcMd31vRNqphI3ebQ/edit#gid=1660848898
 writeToGS :: Text -> IO ()
-writeToGS = undefined
+writeToGS link = do
+  let sheetID = (splitOn "/" link) !! 5
+  exampleAValue sheetID "A1:A" [[String "Ping", String "123"]]
 
-go :: IO ()
-go = do
-  exampleAValue testId "A1:A" [[String "Ping", String "123"]]
--- main :: IO ()
--- main = do
 --   -- TODO move secret json to ~./config/gcloud System.Directory
 --   ss <- exampleGetValue testId "A1:A2"
 --   exampleUpdateValue testId "A1:B2" [[String "Pong", String "Pong"], [String "Ping"]]

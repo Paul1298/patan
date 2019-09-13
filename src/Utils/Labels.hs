@@ -50,6 +50,7 @@ medRecLabNum = search "Медицинская карта №"
 fioLabNum    = search "Фамилия, имя, отчество"
 sexLabNum    = search "Пол"
 ageLabNum    = search "Полных лет"
+-- ageLabNum    = search "Отделение"
 
 dateRepLabNum,  dateBirthLabNum, dateDeathLabNum, dateRecLabNum, datePsyLabNum :: Int
 dateRepLabNum   = search "Дата протокола"
