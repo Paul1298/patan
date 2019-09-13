@@ -9,15 +9,15 @@ import           Graphics.UI.Gtk        hiding (response)
 import           System.Info
 import           System.Process
 
+import           Excel.GogolSheet
 import           Excel.Xman
 import           GUI.CommonGUI
 import           GUI.Fillings
 import           Utils.Labels
 import           Utils.Writer
 
-foo :: [Entry] -> TreeIter -> IO Bool
-foo entries (TreeIter _ i _ _) = do
-  -- putStrLn $ show (i + 2)
+completeEntriesFromExcel :: [Entry] -> TreeIter -> IO Bool
+completeEntriesFromExcel entries (TreeIter _ i _ _) = do
   [fio, sex, dep, age, dateDeath, datePsy] <- getAll (fromIntegral (i + 2))
   entrySetText (entries !! fioLabNum) fio
   Just grid   <- fmap castToGrid <$> maybeM undefined widgetGetParent (widgetGetParent (head entries))
@@ -32,22 +32,22 @@ foo entries (TreeIter _ i _ _) = do
   entrySetText (entries !! datePsyLabNum) datePsy
   return False
 
-radioSign :: RadioButton -> Entry -> Widget -> IO ()
-radioSign b e l = do
+radioSignal :: RadioButton -> Entry -> Widget -> IO ()
+radioSignal b e l = do
   void $ b `on` toggled $ focLabel l >> (entrySetText e =<< (buttonGetLabel b :: IO String))
   void $ b `on` focusOutEvent $ liftIO $ unfocLabel l >> return False
   return ()
 
-bar :: Int -> String -> String -> Grid -> [Entry] -> IO ()
-bar i fstS sndS grid entries = do
+addRadioButtonGroup :: Int -> String -> String -> Grid -> [Entry] -> IO ()
+addRadioButtonGroup i fstS sndS grid entries = do
   box <- hBoxNew True 0
   h <- radioButtonNew
   f <- radioButtonNewWithLabelFromWidget h fstS
   Just lab <- gridGetChildAt grid 0 i
   s <- radioButtonNewWithLabelFromWidget f sndS
   let e = entries !! i
-  radioSign f e lab
-  radioSign s e lab
+  radioSignal f e lab
+  radioSignal s e lab
   boxPackStart box f PackGrow 20
   boxPackStart box s PackGrow 20
 
@@ -57,10 +57,10 @@ bar i fstS sndS grid entries = do
   gridAttach grid box 1 i 1 1
   widgetShowAll grid
 
-sign1sect :: Grid -> [Entry] -> IO ()
-sign1sect grid entries = do
-  bar sexLabNum "М" "Ж" grid entries
-  bar 19 "Да" "Нет" grid entries
+signalsClinicalData :: Grid -> [Entry] -> IO ()
+signalsClinicalData grid entries = do
+  addRadioButtonGroup sexLabNum "М" "Ж" grid entries
+  addRadioButtonGroup 19 "Да" "Нет" grid entries
   fillings1 entries
 
   Just medRecCB <- fmap castToComboBox <$> gridGetChildAt grid 1 medRecLabNum
@@ -69,9 +69,9 @@ sign1sect grid entries = do
   void $ medRecCB `on` changed $ do
     ti <- comboBoxGetActiveIter medRecCB
     case ti of
-      Just i  -> foo entries i >> return ()
+      Just i  -> completeEntriesFromExcel entries i >> return ()
       Nothing -> return ()
-  void $ medRecEC `on` matchSelected $ (\_ ti -> foo entries ti)
+  void $ medRecEC `on` matchSelected $ (\_ ti -> completeEntriesFromExcel entries ti)
 
   comboBoxSetActive medRecCB 0
 
@@ -101,16 +101,20 @@ getText rcol = do
                   textIterGetText st end
     _          -> getEntry rcol >>= entryGetText
 
-signSectChange :: Button -> Button -> [Widget] -> [[Widget]] -> IO ()
-signSectChange saveRTF saveToEx widgets1 widgets2 = do
+signalsMain :: Button -> Button -> Button -> [Widget] -> [[Widget]] -> IO ()
+signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
+  window <- fmap castToWindow <$>
+            (widgetGetParent . fromJust
+            =<< widgetGetParent . fromJust
+            =<< widgetGetParent . fromJust
+            =<< widgetGetParent saveRTF)
+
   void $ saveRTF `on` buttonActivated $ do
-    window <- fmap castToWindow <$>
-              (widgetGetParent . fromJust
-              =<< widgetGetParent . fromJust
-              =<< widgetGetParent . fromJust
-              =<< widgetGetParent saveRTF)
-    dialog <- fileChooserDialogNew (Just "Choose where save your Protocol") window
-              FileChooserActionSave [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
+    dialog <- fileChooserDialogNew
+              (Just "Choose where save your Protocol")
+              window
+              FileChooserActionSave
+              [("gtk-cancel", ResponseCancel), ("gtk-save", ResponseAccept)]
     -- TODO add doctor surname to defName
     defName <- getText (head widgets1) <&> (++ ".rtf")
     fileChooserSetCurrentName dialog defName
@@ -130,26 +134,37 @@ signSectChange saveRTF saveToEx widgets1 widgets2 = do
                                         "linux"   -> runCommand ("xdg-open " ++ pathFile)
                                         "mingw32" -> runCommand ("start "    ++ pathFile)
                                         _         -> undefined
-
-      ResponseCancel      -> putStrLn "dialog canceled"
-      ResponseDeleteEvent -> putStrLn "dialog closed"
-      _                   -> undefined
+      _                   -> return ()
     widgetHide dialog
 
   void $ saveToEx `on` buttonActivated $ do
-    window <- fmap castToWindow <$>
-              (widgetGetParent . fromJust
-              =<< widgetGetParent . fromJust
-              =<< widgetGetParent . fromJust
-              =<< widgetGetParent saveToEx)
-    dialog <- fileChooserDialogNew (Just "Choose Excel") window
-              FileChooserActionOpen [("gtk-cancel", ResponseCancel), ("gtk-ok", ResponseOk)]
-    widgetShowAll dialog
+    dialog <- fileChooserDialogNew
+              (Just "Choose Excel")
+              window
+              FileChooserActionOpen
+              [("gtk-cancel", ResponseCancel), ("gtk-ok", ResponseOk)]
+    widgetShow dialog
     response <- dialogRun dialog
     case response of
       ResponseOk          -> do Just pathFile <- fileChooserGetFilename dialog
                                 writeToEx pathFile
-      ResponseCancel      -> putStrLn "dialog canceled"
-      ResponseDeleteEvent -> putStrLn "dialog closed"
-      _                   -> undefined
+      _                   -> return ()
+    widgetHide dialog
+
+  void $ saveToGS `on` buttonActivated $ do
+    dialog <- dialogNew
+    let dialogTitle         = "Введите ссылку на Google Spreadsheet"
+        titleWidthInpixels = length dialogTitle * 10
+    set dialog [ windowTitle        := dialogTitle
+               , windowResizable    := False
+               , windowDefaultWidth := titleWidthInpixels ]
+    linkEntry <- entryNew
+    containerRemove dialog =<< head <$> containerGetChildren dialog -- remove def VBox
+    containerAdd dialog linkEntry
+    widgetShow linkEntry -- to show differences
+    void $ linkEntry `on` entryActivated $ dialogResponse dialog ResponseOk
+    response <- dialogRun dialog
+    case response of
+      ResponseOk -> writeToGS =<< entryGetText linkEntry
+      _          -> return ()
     widgetHide dialog
