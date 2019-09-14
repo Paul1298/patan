@@ -2,39 +2,33 @@
 module Excel.GogolSheet where
 import           Network.Google
 import           Network.Google.Resource.Sheets.Spreadsheets.Get
-import           Network.Google.Sheets
+import           Network.Google.Sheets                           hiding (Number)
 import           Network.Google.Storage
 
 import           Control.Lens                                    ((&), (.~),
-                                                                  (<&>), (?~))
-import           Data.Aeson.Types
-import           Data.Text                                       (Text, splitOn)
+                                                                  (<&>), (?~),
+                                                                  (^.), (^?))
+import           Control.Lens.Prism                              (_Just)
+import           Data.Aeson.Types                                hiding (Error)
+import           Data.Text                                       (Text, breakOn,
+                                                                  pack, splitOn)
 import           System.IO                                       (stdout)
 
--- |
--- This gets the Information about an spreadsheet.
--- In order to be able to run these examples you need to
--- create a service acount from google's developers console
--- and copy the dowloaded json file to ~/.config/gcloud/application_default_credentials.json.
---
--- you must also share with your service the spreadsheet that you want to get the info of.
--- In order to do this you must share the sheet with the email address of your service
--- which is in your downloaded service config file.
---
--- after doing above step just pass the spreadsheet id to the function.
+import           Excel.Xman                                      (entriesNumsToExcel)
+import           Utils.Labels                                    (partList)
+
+
 exampleGetSheet :: Text -> IO Spreadsheet
 exampleGetSheet sheetID = do
-  lgr <- newLogger Debug stdout
+  lgr <- newLogger Error stdout
   env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
   runResourceT . runGoogle env $
     send (spreadsheetsGet sheetID )
 
--- |
--- you pass the sheet id and a range (eg. "sheet1!A1:C3") in that sheet
--- and it retreives the values in the specified range
+
 exampleGetValue :: Text -> Text -> IO ValueRange
 exampleGetValue sheetID range = do
-  lgr <- newLogger Debug stdout
+  lgr <- newLogger Error stdout
   env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
   runResourceT . runGoogle env $
     send  (spreadsheetsValuesGet sheetID range)
@@ -42,7 +36,7 @@ exampleGetValue sheetID range = do
 
 exampleAValue :: Text -> Text -> [[Value]] -> IO ()
 exampleAValue sheetID range val =  do
-  lgr <- newLogger Debug stdout
+  lgr <- newLogger Error stdout
   env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
   runResourceT . runGoogle env $
     send  (svaValueInputOption .~ Just "USER_ENTERED" $ spreadsheetsValuesAppend
@@ -51,14 +45,50 @@ exampleAValue sheetID range val =  do
           range )
   return ()
 
-testId :: Text
-testId = "1_KM9xgF-LpUsSrLTvxRhz7ZxEPrw_OGIWX6T-dAfNKM"
--- testId = "1d5s6kHQCsdU3xPDMesmEDS_H3XrcMd31vRNqphI3ebQ"
--- https://docs.google.com/spreadsheets/d/1d5s6kHQCsdU3xPDMesmEDS_H3XrcMd31vRNqphI3ebQ/edit#gid=1660848898
-writeToGS :: Text -> IO ()
-writeToGS link = do
-  let sheetID = (splitOn "/" link) !! 5
-  exampleAValue sheetID "A1:A" [[String "Ping", String "123"]]
+exampleUValue :: Text -> Text -> [[Value]] -> IO ()
+exampleUValue sheetID range val =  do
+  lgr <- newLogger Error stdout
+  env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
+  runResourceT . runGoogle env $
+    send  (svuValueInputOption .~ Just "USER_ENTERED" $ spreadsheetsValuesUpdate
+          sheetID
+          (vrMajorDimension .~ Just VRMDRows $ vrValues .~ val $ vrRange .~ Just range $ valueRange)
+          range)
+  return ()
+
+-- border :: Text -> Text -> [[Value]] ->  IO ()
+-- border sheetID range val =  do
+--   lgr <- newLogger Error stdout
+--   env <- newEnv <&> (envLogger .~ lgr) . (envScopes .~ spreadsheetsScope)
+--   runResourceT . runGoogle env $
+--     send  (updateBOrdersRequest .~ Just "USER_ENTERED" $ spreadsheetsValuesUpdate
+--           sheetID
+--           ( vrMajorDimension .~ Just VRMDRows $ vrValues .~ val $ vrRange .~ Just range $ valueRange)
+--           range )
+--   return ()
+
+writeToGS :: Text -> [Text] -> IO ()
+writeToGS link answers = do
+  let spsIDInLink = 5
+      sheetID     = (splitOn "/" link) !! spsIDInLink
+
+  spreadsheet <- exampleGetSheet sheetID
+  let Just rowCount = (spreadsheet ^. sprSheets & head)
+                       ^. sProperties
+                       >>= (flip (^.)) sGridProperties -- . _Just
+                       -- ^. sGridProperties . _Just
+                       >>= (flip (^.)) gpRowCount
+
+  let values = (String . pack $ show rowCount) :
+               map ($ undefined)
+               (partList entriesNumsToExcel 0 answers
+               (const . String . fst . breakOn " г."))
+
+  -- putStrLn $ show rowCount
+
+  -- exampleGetValue link ""
+  exampleAValue sheetID "A1:A" [values]
+  -- exampleUValue sheetID "B5:5" [values]
 
 --   -- TODO move secret json to ~./config/gcloud System.Directory
 --   ss <- exampleGetValue testId "A1:A2"

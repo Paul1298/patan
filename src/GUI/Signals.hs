@@ -5,6 +5,7 @@ import           Control.Monad.Extra    (findM, fromMaybeM, maybeM)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Functor           ((<&>))
 import           Data.Maybe             (fromJust)
+import           Data.Text              (Text, pack)
 import           Graphics.UI.Gtk        hiding (response)
 import           System.Info
 import           System.Process
@@ -26,7 +27,7 @@ completeEntriesFromExcel entries (TreeIter _ i _ _) = do
                     (findM (\x -> (== sex) <$> (buttonGetLabel . castToButton) x)
                     =<< containerGetChildren sexBox)
   unfocLabel . fromJust =<< gridGetChildAt grid 0 sexLabNum
-  entrySetText (entries !! 5) dep
+  entrySetText (entries !! depLabNum) dep
   entrySetText (entries !! ageLabNum) age
   entrySetText (entries !! dateDeathLabNum) dateDeath
   entrySetText (entries !! datePsyLabNum) datePsy
@@ -59,8 +60,8 @@ addRadioButtonGroup i fstS sndS grid entries = do
 
 signalsClinicalData :: Grid -> [Entry] -> IO ()
 signalsClinicalData grid entries = do
-  addRadioButtonGroup sexLabNum "М" "Ж" grid entries
-  addRadioButtonGroup 19 "Да" "Нет" grid entries
+  addRadioButtonGroup sexLabNum    "М"  "Ж"   grid entries
+  addRadioButtonGroup wasDocLabNum "Да" "Нет" grid entries
   fillings1 entries
 
   Just medRecCB <- fmap castToComboBox <$> gridGetChildAt grid 1 medRecLabNum
@@ -155,7 +156,7 @@ signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
 
   void $ saveToGS `on` buttonActivated $ do
     dialog <- dialogNew
-    let dialogTitle         = "Введите ссылку на Google Spreadsheet"
+    let dialogTitle        = "Введите ссылку на Google Spreadsheet"
         titleWidthInpixels = length dialogTitle * 10
     set dialog [ windowTitle        := dialogTitle
                , windowResizable    := False
@@ -170,6 +171,7 @@ signalsMain saveRTF saveToEx saveToGS widgets1 widgets2 = do
 
     response <- dialogRun dialog
     case response of
-      ResponseOk -> writeToGS =<< entryGetText linkEntry
+      ResponseOk -> do link <- entryGetText linkEntry
+                       writeToGS link . map pack =<< mapM getText widgets1
       _          -> return ()
     widgetHide dialog

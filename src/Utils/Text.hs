@@ -8,6 +8,7 @@ import           Utils.Labels
 header1 :: String -> String
 header1 = printf "ПРОТОКОЛ\\line патологоанатомического вскрытия № %s"
 
+
 text1 :: [Either String (String -> String)]
 text1 = [
           Left "1. Наименование медицинской организации и отделения, в котором наблюдался и умер пациент: "
@@ -35,8 +36,10 @@ text1 = [
         , Left "Сопутствующие заболевания:\\par"
         ]
 
+
 header2 :: String
 header2 = "{\\ulПАТОЛОГОАНАТОМИЧЕСКОЕ ВСКРЫТИЕ}"
+
 
 text2 :: [String]
 text2 = map (++ "\\par ") [
@@ -57,8 +60,10 @@ printfList_ :: PrintfType t => String -> [String] -> Int -> t
 printfList_ string list n | n == 0    = printf string (list !! 0)
                           | otherwise = (printfList_ string list (n - 1)) (list !! n)
 
+
 printfList :: String -> [String] -> String
 printfList string list = (printfList_ string list (length list - 1)) :: String
+
 
 textInner2 :: [[String] -> String]
 textInner2 = map (printfList . foldl (\b a -> b ++ a ++ " %s. ") "" . fmap unpack) labelsInner2

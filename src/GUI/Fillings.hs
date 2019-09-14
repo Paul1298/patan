@@ -168,12 +168,6 @@ fillTV w sts = do
   tb <- textViewGetBuffer =<< getTV w
   textBufferSetText tb (foldl1 (\a b -> a ++ " - ,\n" ++ b) sts ++ " - ")
 
-partList :: [Int] -> Int -> [a] -> (a -> b -> c) -> [b -> c]
-partList [] _ _ _                            = []
-partList a@(i : is) j (x : xs) f | i == j    = f x : partList is (j + 1) xs f
-                                 | otherwise = partList a (j + 1) xs f
-partList _ _ _ _                             = []
-
 fillings2 :: [[Widget]] -> IO ()
 fillings2 ws = do
   sequence_ $ zipWith (\x s -> (flip entrySetText) s =<< getEntry x) (head ws) [" пола", " см.", " кг."]

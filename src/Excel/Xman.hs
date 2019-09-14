@@ -12,6 +12,21 @@ import           Data.Time.Clock.POSIX      (getPOSIXTime)
 import           Data.Time.Format           (defaultTimeLocale, formatTime)
 import           System.IO
 
+import           Utils.Labels
+
+entriesNumsToExcel :: [Int]
+entriesNumsToExcel =
+  [
+    medRecLabNum
+  , fioLabNum
+  , depLabNum
+  , sexLabNum
+  , ageLabNum
+  , dateDeathLabNum
+  , badDayLabNum
+  , datePsyLabNum
+  ]
+
 firstSheet :: Xlsx -> Worksheet
 firstSheet xlsx = snd . head $ xlsx ^. xlSheets
 
@@ -29,8 +44,6 @@ writeToEx fileName = do
       xlsx  = xlsx_old & atSheet (firstSheetName xlsx_old) ?~ sheet
   L.writeFile fileName $ fromXlsx ct xlsx
   -- L.writeFile fileName $ fromXlsx ct xlsx_old
-
-
 
 getMKB :: Int -> IO [Text]
 getMKB col = do
@@ -72,7 +85,7 @@ getAll row = do
                     if (c == 9 || c == 17)
                     then do
                       let u = dateFromNumber (xlsx ^. xlDateBase) d
-                          s = formatTime defaultTimeLocale "%m%d%_Y" u
+                          s = formatTime defaultTimeLocale "%d%m%_Y" u
                       return $ pack s
                     else return $ txtd d
                   _                   -> return ""

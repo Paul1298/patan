@@ -45,12 +45,24 @@ search s =
   let (Just i) = findIndex (\x -> (unpack s) `isSubsequenceOf` (unpack x)) labels1
   in i
 
-medRecLabNum, fioLabNum, sexLabNum, ageLabNum :: Int
+partList :: [Int] -> Int -> [a] -> (a -> b -> c) -> [b -> c]
+partList [] _ _ _                            = []
+partList a@(i : is) j (x : xs) f | i == j    = f x : partList is (j + 1) xs f
+                                 | otherwise = partList a (j + 1) xs f
+partList _ _ _ _                             = []
+
+medRecLabNum, depLabNum, fioLabNum, ageLabNum, badDayLabNum :: Int
 medRecLabNum = search "Медицинская карта №"
+depLabNum    = search "Отделение"
 fioLabNum    = search "Фамилия, имя, отчество"
-sexLabNum    = search "Пол"
 ageLabNum    = search "Полных лет"
--- ageLabNum    = search "Отделение"
+badDayLabNum = search "Проведено койко-дней"
+
+
+sexLabNum, wasDocLabNum :: Int
+sexLabNum    = search "Пол"
+wasDocLabNum = search "Леч. врач (зав. отделением)\nприсутствовал на вскрытии?"
+
 
 dateRepLabNum,  dateBirthLabNum, dateDeathLabNum, dateRecLabNum, datePsyLabNum :: Int
 dateRepLabNum   = search "Дата протокола"
@@ -58,6 +70,7 @@ dateBirthLabNum = search "Дата рождения"
 dateDeathLabNum = search "Дата смерти"
 dateRecLabNum   = search "Дата поступления"
 datePsyLabNum   = search "Дата вскрытия"
+
 
 labels2 :: [Text]
 labels2 = [
@@ -73,6 +86,7 @@ labels2 = [
           , "Эндокринные железы"
           , "Костно-мышечная система"
           ]
+
 
 tvInner2 :: [([Int], [[String]])]
 tvInner2 = [
