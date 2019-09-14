@@ -5,7 +5,7 @@ import           Control.Monad.Extra    (findM, fromMaybeM, maybeM)
 import           Control.Monad.IO.Class (liftIO)
 import           Data.Functor           ((<&>))
 import           Data.Maybe             (fromJust)
-import           Data.Text              (Text, pack)
+import           Data.Text              (pack)
 import           Graphics.UI.Gtk        hiding (response)
 import           System.Info
 import           System.Process

@@ -85,8 +85,6 @@ startGUI = do
   set saveToEx [ widgetHExpand := True ]
   set saveToGS [ widgetHExpand := True ]
 
-  -- TODO add "Save to GS"
-
   butBox <- hBoxNew True 0
   containerAdd butBox saveRTF
   containerAdd butBox saveToEx
