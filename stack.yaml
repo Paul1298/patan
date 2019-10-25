@@ -47,11 +47,14 @@ extra-deps:
 #
   - gtk3-0.15.1@sha256:86cdd17df569aa641835e5bcae304bc405aa397469888a0540860cfc050b788d,19475
 
+<<<<<<< HEAD
   - gogol-0.5.0@sha256:01b38acf97ae0afb2465935fee1bebce03c1b84e629cf0887467be7ae361f0a7,3222
   - gogol-core-0.5.0@sha256:c0a919cd89a33de7fd6ee925abdb48b0eb5d1002a016124acbdff568f267e4c7,2821
   - gogol-sheets-0.5.0@sha256:a1235526682b8f2ecb1fd97f918fd0f8c11ef97a81cfd631529d622de308f7ce,2594
   - gogol-storage-0.5.0@sha256:ba90fd79b014316e0c6088b30f9757e2394bb8af4265615ca5ea284b930586f9,4815
 
+=======
+>>>>>>> parent of 801a181... let test GS on Wind
   # - network-bsd-2.8.1.0
   # - MissingH-1.4.2.0
   # - hslogger-1.3.0.0
